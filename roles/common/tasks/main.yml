@@ -1,0 +1,7 @@
+---
+- name: install common packages
+  apt: pkg={{ item }} force=yes update_cache=yes
+  with_items:
+    - git
+    - python
+    - python-pip

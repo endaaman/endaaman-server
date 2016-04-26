@@ -1,0 +1,23 @@
+---
+- name: add user `git`
+  user: name=git
+
+- name: place enda.git
+  remote_user: git
+  become: no
+  git: bare=yes clone=no repo=/home/git/enda.git
+
+# - name: place enda-api.git
+#   remote_user: git
+#   become: no
+#   git: bare=yes clone=no repo=/home/git/enda-api.git
+
+# - name: place enda.git
+#   git: bare=yes repo=enda.git
+#   args:
+#     chdir: ~/repos
+#
+# - name: place enda.git
+#   git: bare=yes repo=enda.git
+#   args:
+#     chdir: ~/repos

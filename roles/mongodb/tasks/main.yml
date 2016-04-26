@@ -1,0 +1,13 @@
+# file: provisioning/roles/nginx/tasks/main.yml
+- name: install mongodb
+  apt: pkg=mongodb force=yes update_cache=yes
+
+- name: put mongodb.conf
+  copy: >
+    src=roles/mongodb/templates/mongodb.conf
+    dest=/etc/mongodb.conf
+    owner=mongodb group=mongodb
+  notify: restart mongodb
+
+- name: set auto start mongodb
+  service: name=mongodb enabled=yes

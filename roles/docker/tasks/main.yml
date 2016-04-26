@@ -1,0 +1,27 @@
+---
+- name: add apt key
+  apt_key: >
+    keyserver="hkp://p80.pool.sks-keyservers.net:80"
+    id="58118E89F3A912897C070ADBF76221572C52609D"
+
+- name: add apt repo
+  apt_repository: >
+    repo='deb https://apt.dockerproject.org/repo ubuntu-xenial main'
+    state=present
+
+- name: update apt cache
+  apt: update_cache=yes
+
+- name: get kernel
+  shell: uname -r
+  register: result
+  changed_when: false
+  always_run: yes
+
+- name: install extra image
+  apt: >
+    pkg=linux-image-extra-{{result.stdout}}
+    state=present
+
+- name: install docker-engine
+  apt: pkg=docker-engine force=yes
