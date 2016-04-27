@@ -1,7 +1,0 @@
----
-- name: restart docker-compose
-  shell: |
-    docker-compose stop
-    docker-compose up -d
-  args:
-    chdir: /root/main/

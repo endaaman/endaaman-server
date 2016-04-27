@@ -3,8 +3,8 @@
   become: yes
   remote_user: ken
   roles:
-    # - common
-    # - mongodb
-    # - docker
-    # - docker-compose
-    - repos
+    - packages
+    - mongodb
+    - user
+    - docker
+    - apps

@@ -1,0 +1,31 @@
+nginx-proxy:
+  build: /var/apps/nginx-proxy
+  volumes:
+    - /var/run/docker.sock:/tmp/docker.sock:ro
+  ports:
+    - 80:80
+    - 443:443
+  restart: always
+
+enda:
+  build: /var/apps/endaaman.me
+  environment:
+    VIRTUAL_HOST: endaaman.me
+  restart: always
+
+enda-api:
+  build: /var/apps/api.endaaman.me
+  environment:
+    VIRTUAL_HOST: api.endaaman.me
+    MONGO_HOST: 172.17.0.1:27017
+  volumes:
+    - /var/uploaded/enda:/var/uploaded/enda
+  restart: always
+
+enda-static:
+  build: /var/apps/static.endaaman.me
+  environment:
+    VIRTUAL_HOST: static.endaaman.me
+  volumes:
+    - /var/uploaded/enda:/var/uploaded/enda
+  restart: always

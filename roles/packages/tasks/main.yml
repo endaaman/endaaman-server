@@ -5,3 +5,6 @@
     - git
     - python
     - python-pip
+    - zsh
+    - curl
+    - wget

@@ -1,0 +1,62 @@
+---
+- name: mkdir /var/apps
+  file: >
+    path=/var/apps state=directory
+    owner=root group=root
+
+
+# common : /var/apps/docker-compose.yml
+- name: put /var/apps/docker-compose.yml
+  copy: >
+    src=roles/apps/templates/docker-compose.yml
+    dest=/var/apps/docker-compose.yml
+    owner=ken group=ken
+  notify: restart docker-compose
+
+
+# nginx-proxy : /var/apps/nginx-proxy
+- name: mkdir /var/apps/nginx-proxy
+  file: >
+    path=/var/apps/nginx-proxy state=directory
+    owner=root group=root
+
+- name: put /var/apps/nginx-proxy/Dockerfile
+  copy: >
+    src=roles/apps/templates/nginx-proxy/Dockerfile
+    dest=/var/apps/nginx-proxy/Dockerfile
+  notify: restart nginx-proxy
+
+# endaaman.me : /var/apps/endaaman.me
+- name: put endaaman.me
+  become: no
+  remote_user: ken
+  git: >
+    repo=https://github.com/endaaman/enda.git
+    dest=/var/apps/endaaman.me
+    version=master
+  notify: restart enda
+
+# api.endaaman.me : /var/apps/api.endaaman.me
+- name: put api.endaaman.me
+  become: no
+  remote_user: ken
+  git: >
+    repo=https://github.com/endaaman/enda-api.git
+    dest=/var/apps/api.endaaman.me
+    version=master
+  notify: restart enda-api
+
+# static.endaaman.me : /var/apps/static.endaaman.me
+- name: put static.endaaman.me
+  become: no
+  remote_user: ken
+  git: >
+    repo=https://github.com/endaaman/enda-static.git
+    dest=/var/apps/static.endaaman.me
+    version=master
+  notify: restart enda-static
+
+- name: mkdir /var/uploaded/enda
+  file: >
+    path=/var/uploaded/enda state=directory
+    owner=ken group=ken mode=0755

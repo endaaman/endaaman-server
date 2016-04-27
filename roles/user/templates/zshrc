@@ -1,0 +1,15 @@
+PROMPT="%F{blue}%~%f "
+if [ ${EUID:-${UID}} = 0 ]; then
+    PROMPT=$PROMPT'# '
+else
+    PROMPT=$PROMPT'$ '
+fi
+RPROMPT='[%F{magenta}%n%f@%F{blue}%m%f]'
+
+export PATH=$HOME/.nodebrew/current/bin:$PATH
+nodebrew use 4 > /dev/null
+
+alias g="git"
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'

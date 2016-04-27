@@ -1,0 +1,25 @@
+---
+# groupsにsudoを指定しないかつappend=trueを抜くとエラいことになる
+- name: add to docker group, set zsh as default shell
+  user: name=ken groups=ken,docker,sudo append=true shell=/bin/zsh
+
+- name: put /home/ken/.zshrc
+  copy: >
+    src=roles/user/templates/zshrc
+    dest=/home/ken/.zshrc
+    owner=ken group=ken
+
+# - name: check installed nodebrew
+#   become: no
+#   remote_user: ken
+#   shell: zsh -lc 'which nodebrew'
+#   ignore_errors: True
+#   register: nodebrew_installed
+#
+# - name: install nodebrew
+#   become: no
+#   remote_user: ken
+#   shell: curl -L git.io/nodebrew | perl - setup
+#   when: nodebrew_installed|failed
+#   args:
+#     chdir: /home/ken
