@@ -8,24 +8,16 @@ nginx-proxy:
   restart: always
 
 enda:
-  build: /var/apps/endaaman.me
-  environment:
-    VIRTUAL_HOST: endaaman.me
-  restart: always
+  extends:
+    file: /var/apps/endaaman.me/docker-compose.yml
+    service: enda
 
 enda-api:
-  build: /var/apps/api.endaaman.me
-  environment:
-    VIRTUAL_HOST: api.endaaman.me
-    MONGO_HOST: 172.17.0.1:27017
-  volumes:
-    - /var/uploaded/enda:/var/uploaded/enda
-  restart: always
+  extends:
+    file: /var/apps/api.endaaman.me/docker-compose.yml
+    service: enda-api
 
 enda-static:
-  build: /var/apps/static.endaaman.me
-  environment:
-    VIRTUAL_HOST: static.endaaman.me
-  volumes:
-    - /var/uploaded/enda:/var/uploaded/enda
-  restart: always
+  extends:
+    file: /var/apps/static.endaaman.me/docker-compose.yml
+    service: enda-static
