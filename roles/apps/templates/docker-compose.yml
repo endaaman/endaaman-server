@@ -21,3 +21,8 @@ enda-static:
   extends:
     file: /var/apps/static.endaaman.me/docker-compose.yml
     service: enda-static
+
+frate:
+  extends:
+    file: /var/apps/frate-alpine.club/docker-compose.yml
+    service: frate

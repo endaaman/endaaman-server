@@ -4,6 +4,11 @@
     path=/var/apps state=directory
     owner=root group=root
 
+# upload dir
+- name: mkdir /var/uploaded/enda
+  file: >
+    path=/var/uploaded/enda state=directory
+    owner=root group=root mode=0755
 
 # common : /var/apps/docker-compose.yml
 - name: put /var/apps/docker-compose.yml
@@ -12,7 +17,6 @@
     dest=/var/apps/docker-compose.yml
     owner=ken group=ken
   notify: restart docker-compose
-
 
 # nginx-proxy : /var/apps/nginx-proxy
 - name: mkdir /var/apps/nginx-proxy
@@ -28,8 +32,6 @@
 
 # endaaman.me : /var/apps/endaaman.me
 - name: put endaaman.me
-  become: no
-  remote_user: ken
   git: >
     repo=https://github.com/endaaman/enda.git
     dest=/var/apps/endaaman.me
@@ -38,8 +40,6 @@
 
 # api.endaaman.me : /var/apps/api.endaaman.me
 - name: put api.endaaman.me
-  become: no
-  remote_user: ken
   git: >
     repo=https://github.com/endaaman/enda-api.git
     dest=/var/apps/api.endaaman.me
@@ -48,15 +48,17 @@
 
 # static.endaaman.me : /var/apps/static.endaaman.me
 - name: put static.endaaman.me
-  become: no
-  remote_user: ken
   git: >
     repo=https://github.com/endaaman/enda-static.git
     dest=/var/apps/static.endaaman.me
     version=master
   notify: restart enda-static
 
-- name: mkdir /var/uploaded/enda
-  file: >
-    path=/var/uploaded/enda state=directory
-    owner=ken group=ken mode=0755
+
+# frate-alpine.club : /var/apps/frate-alpine.club
+- name: put frate-alpine.club
+  git: >
+    repo=https://github.com/endaaman/frate.git
+    dest=/var/apps/frate-alpine.club
+    version=master
+  notify: restart frate

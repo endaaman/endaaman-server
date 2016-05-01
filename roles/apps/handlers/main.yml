@@ -1,40 +1,36 @@
 ---
 - name: restart docker-compose
-  become: no
-  remote_user: ken
   shell: |
     docker-compose up -d
   args:
     chdir: /var/apps
 
 - name: restart nginx-proxy
-  become: no
-  remote_user: ken
   shell: |
     docker-compose up -d --build nginx-proxy
   args:
     chdir: /var/apps
 
 - name: restart enda
-  become: no
-  remote_user: ken
   shell: |
     docker-compose up -d --build enda
   args:
     chdir: /var/apps
 
 - name: restart enda-api
-  become: no
-  remote_user: ken
   shell: |
     docker-compose up -d --build enda-api
   args:
     chdir: /var/apps
 
 - name: restart enda-static
-  become: no
-  remote_user: ken
   shell: |
     docker-compose up -d --build enda-static
+  args:
+    chdir: /var/apps
+
+- name: restart frate
+  shell: |
+    docker-compose up -d --build frate
   args:
     chdir: /var/apps
