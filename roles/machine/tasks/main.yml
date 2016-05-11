@@ -1,0 +1,34 @@
+---
+- name: deny all port defaultly
+  ufw: state=enabled policy=deny
+
+- name: open port 80, 443
+  ufw: state=enabled rule=allow proto=tcp port={{ item }}
+  with_items:
+    - 80
+    - 443
+
+- name: allow connnection from docker to mongodb
+  ufw: state=enabled rule=allow proto=tcp port=27017 src=172.17.42.1/16
+
+- name: limit port 22
+  ufw: state=enabled rule=limit proto=tcp port=22
+
+- name: put mongodb.conf
+  copy: >
+    src=roles/machine/templates/mongodb.conf
+    dest=/etc/mongodb.conf
+    owner=mongodb group=mongodb
+  notify: restart mongodb
+
+- name: set auto start mongodb
+  service: name=mongodb enabled=yes
+
+- name: start mongodb
+  service: name=mongodb state=started
+
+- name: set auto start docker
+  service: name=docker enabled=yes
+
+- name: start docker
+  service: name=docker state=started

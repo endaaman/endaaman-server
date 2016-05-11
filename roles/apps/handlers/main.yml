@@ -1,36 +1,6 @@
 ---
-- name: restart docker-compose
+- name: restart containers
   shell: |
-    docker-compose up -d
-  args:
-    chdir: /var/apps
-
-- name: restart nginx-proxy
-  shell: |
-    docker-compose up -d --build nginx-proxy
-  args:
-    chdir: /var/apps
-
-- name: restart enda
-  shell: |
-    docker-compose up -d --build enda
-  args:
-    chdir: /var/apps
-
-- name: restart enda-api
-  shell: |
-    docker-compose up -d --build enda-api
-  args:
-    chdir: /var/apps
-
-- name: restart enda-static
-  shell: |
-    docker-compose up -d --build enda-static
-  args:
-    chdir: /var/apps
-
-- name: restart frate
-  shell: |
-    docker-compose up -d --build frate
+    docker-compose up -d --build
   args:
     chdir: /var/apps

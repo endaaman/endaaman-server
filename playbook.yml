@@ -4,7 +4,6 @@
   remote_user: ken
   roles:
     - packages
-    - mongodb
+    - machine
     - user
-    - docker
     - apps

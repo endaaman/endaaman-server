@@ -1,5 +1,21 @@
 ---
-- name: install common packages
+- name: add apt key for docker-engine
+  apt_key: >
+    keyserver="hkp://p80.pool.sks-keyservers.net:80"
+    id="58118E89F3A912897C070ADBF76221572C52609D"
+
+- name: add apt repo for docker-engine
+  apt_repository: >
+    repo='deb https://apt.dockerproject.org/repo ubuntu-trusty main'
+    state=present
+
+- name: get kernel name
+  shell: uname -r
+  register: kernel_name
+  changed_when: false
+  always_run: yes
+
+- name: install apt packages
   apt: pkg={{ item }} force=yes update_cache=yes
   with_items:
     - git
@@ -8,3 +24,10 @@
     - zsh
     - curl
     - wget
+    - ufw
+    - mongodb
+    - linux-image-extra-{{kernel_name.stdout}}
+    - docker-engine
+
+- name: install pip packages
+  pip: name=docker-compose

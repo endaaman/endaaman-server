@@ -16,7 +16,7 @@
     src=roles/apps/templates/docker-compose.yml
     dest=/var/apps/docker-compose.yml
     owner=ken group=ken
-  notify: restart docker-compose
+  notify: restart containers
 
 # nginx-proxy : /var/apps/nginx-proxy
 - name: mkdir /var/apps/nginx-proxy
@@ -28,7 +28,7 @@
   copy: >
     src=roles/apps/templates/nginx-proxy/Dockerfile
     dest=/var/apps/nginx-proxy/Dockerfile
-  notify: restart nginx-proxy
+  notify: restart containers
 
 # endaaman.me : /var/apps/endaaman.me
 - name: put endaaman.me
@@ -36,7 +36,7 @@
     repo=https://github.com/endaaman/enda.git
     dest=/var/apps/endaaman.me
     version=master
-  notify: restart enda
+  notify: restart containers
 
 # api.endaaman.me : /var/apps/api.endaaman.me
 - name: put api.endaaman.me
@@ -44,7 +44,7 @@
     repo=https://github.com/endaaman/enda-api.git
     dest=/var/apps/api.endaaman.me
     version=master
-  notify: restart enda-api
+  notify: restart containers
 
 # static.endaaman.me : /var/apps/static.endaaman.me
 - name: put static.endaaman.me
@@ -52,7 +52,7 @@
     repo=https://github.com/endaaman/enda-static.git
     dest=/var/apps/static.endaaman.me
     version=master
-  notify: restart enda-static
+  notify: restart containers
 
 
 # frate-alpine.club : /var/apps/frate-alpine.club
@@ -61,4 +61,4 @@
     repo=https://github.com/endaaman/frate.git
     dest=/var/apps/frate-alpine.club
     version=master
-  notify: restart frate
+  notify: restart containers
