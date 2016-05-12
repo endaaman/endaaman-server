@@ -2,6 +2,8 @@ nginx-proxy:
   build: /var/apps/nginx-proxy
   volumes:
     - /var/run/docker.sock:/tmp/docker.sock:ro
+    - /etc/letsencrypt:/etc/letsencrypt:ro
+    - /etc/ssl/private:/etc/nginx/certs:ro
   ports:
     - 80:80
     - 443:443

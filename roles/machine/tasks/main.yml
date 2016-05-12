@@ -32,3 +32,35 @@
 
 - name: start docker
   service: name=docker state=started
+
+- name: link ssl cert files
+  file: >
+    state=hard
+    src=/etc/letsencrypt/live/{{ item }}/fullchain.pem
+    dest=/etc/ssl/private/{{ item }}.crt
+  with_items:
+    - endaaman.me
+    - api.endaaman.me
+    - static.endaaman.me
+
+- name: link ssl key files
+  file: >
+    state=hard
+    src=/etc/letsencrypt/live/{{ item }}/privkey.pem
+    dest=/etc/ssl/private/{{ item }}.key
+  with_items:
+    - endaaman.me
+    - api.endaaman.me
+    - static.endaaman.me
+
+- name: update ssl
+  cron: >
+    name='update ssl'
+    minute='50' hour='2' day='20'
+    job='docker-compose -f /var/apps/docker-compose.yml stop && letsencrypt-auto renew --force-renew && docker-compose -f /var/apps/docker-compose.yml start'
+
+- name: restart apps
+  cron: >
+    name='restart apps'
+    minute='50' hour='3' weekday='0'
+    job='docker-compose -f /var/apps/docker-compose.yml restart'

@@ -31,3 +31,20 @@
 
 - name: install pip packages
   pip: name=docker-compose
+
+- name: get letsencrypt
+  git: >
+    repo=https://github.com/letsencrypt/letsencrypt.git
+    dest=/usr/local/lib/letsencrypt
+    version=master
+
+- name: link letsencrypt
+  file: >
+    src=/usr/local/lib/letsencrypt/letsencrypt
+    dest=/usr/local/bin/letsencrypt state=link
+
+- name: link letsencrypt-auto
+  file: >
+    state=link
+    src=/usr/local/lib/letsencrypt/letsencrypt-auto
+    dest=/usr/local/bin/letsencrypt-auto
