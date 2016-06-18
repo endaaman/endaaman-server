@@ -13,18 +13,22 @@ enda:
   extends:
     file: /var/apps/endaaman.me/docker-compose.yml
     service: enda
+  restart: always
 
 enda-api:
   extends:
     file: /var/apps/api.endaaman.me/docker-compose.yml
     service: enda-api
+  restart: always
 
 enda-static:
   extends:
     file: /var/apps/static.endaaman.me/docker-compose.yml
     service: enda-static
+  restart: always
 
 frate:
   extends:
     file: /var/apps/frate-alpine.club/docker-compose.yml
     service: frate
+  restart: always
