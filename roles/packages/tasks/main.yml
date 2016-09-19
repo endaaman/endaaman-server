@@ -48,3 +48,4 @@
     state=link
     src=/usr/local/lib/letsencrypt/letsencrypt-auto
     dest=/usr/local/bin/letsencrypt-auto
+
