@@ -1,64 +1,24 @@
 ---
-- name: mkdir /var/apps
-  file: >
-    path=/var/apps state=directory
-    owner=root group=root
-
 # upload dir
-- name: mkdir /var/uploaded/enda
+- name: mkdir /var/shared/enda
   file: >
-    path=/var/uploaded/enda state=directory
+    path=/var/shared/enda state=directory
     owner=root group=root mode=0755
 
-# common : /var/apps/docker-compose.yml
-- name: put /var/apps/docker-compose.yml
+- name: put /var/www/docker-compose.yml
   copy: >
     src=roles/apps/templates/docker-compose.yml
-    dest=/var/apps/docker-compose.yml
-    owner=ken group=ken
-  notify: restart containers
+    dest=/var/www/docker-compose.yml
 
-# nginx-proxy : /var/apps/nginx-proxy
-- name: mkdir /var/apps/nginx-proxy
-  file: >
-    path=/var/apps/nginx-proxy state=directory
-    owner=root group=root
-
-- name: put /var/apps/nginx-proxy/Dockerfile
-  copy: >
-    src=roles/apps/templates/nginx-proxy/Dockerfile
-    dest=/var/apps/nginx-proxy/Dockerfile
-  notify: restart containers
-
-# endaaman.me : /var/apps/endaaman.me
-- name: put endaaman.me
-  git: >
-    repo=https://github.com/endaaman/enda.git
-    dest=/var/apps/endaaman.me
-    version=master
-  notify: restart containers
-
-# api.endaaman.me : /var/apps/api.endaaman.me
-- name: put api.endaaman.me
-  git: >
-    repo=https://github.com/endaaman/enda-api.git
-    dest=/var/apps/api.endaaman.me
-    version=master
-  notify: restart containers
-
-# static.endaaman.me : /var/apps/static.endaaman.me
-- name: put static.endaaman.me
-  git: >
-    repo=https://github.com/endaaman/enda-static.git
-    dest=/var/apps/static.endaaman.me
-    version=master
-  notify: restart containers
-
-
-# frate-alpine.club : /var/apps/frate-alpine.club
 - name: put frate-alpine.club
   git: >
-    repo=https://github.com/endaaman/frate.git
-    dest=/var/apps/frate-alpine.club
+    repo=https://github.com/endaaman/frate-alpine.club.git
+    dest=/var/www/frate-alpine.club
     version=master
-  notify: restart containers
+
+- name: restart containers
+  shell: |
+    docker-compose pull && \
+    docker-compose up -d --build
+  args:
+    chdir: /var/www

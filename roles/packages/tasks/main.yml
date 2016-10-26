@@ -16,7 +16,7 @@
   always_run: yes
 
 - name: install apt packages
-  apt: pkg={{ item }} force=yes update_cache=yes
+  apt: pkg={{ item }} force=yes update_cache=yes state=latest
   with_items:
     - git
     - python
@@ -24,10 +24,15 @@
     - zsh
     - curl
     - wget
+    - trash-cli
     - ufw
-    - mongodb
+    - nmap
     - linux-image-extra-{{kernel_name.stdout}}
     - docker-engine
+    - lxd
+    - lxd-client
+    - bridge-utils
+    - mariadb-server
 
 - name: install pip packages
   pip: name=docker-compose
@@ -37,15 +42,4 @@
     repo=https://github.com/letsencrypt/letsencrypt.git
     dest=/usr/local/lib/letsencrypt
     version=master
-
-- name: link letsencrypt
-  file: >
-    src=/usr/local/lib/letsencrypt/letsencrypt
-    dest=/usr/local/bin/letsencrypt state=link
-
-- name: link letsencrypt-auto
-  file: >
-    state=link
-    src=/usr/local/lib/letsencrypt/letsencrypt-auto
-    dest=/usr/local/bin/letsencrypt-auto
 

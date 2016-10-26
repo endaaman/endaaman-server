@@ -11,33 +11,31 @@
 - name: allow connnection from docker to mongodb
   ufw: state=enabled rule=allow proto=tcp port=27017 src=172.17.42.1/16
 
+- name: allow connnection from docker to mariadb
+  ufw: state=enabled rule=allow proto=tcp port=3306 src=172.17.42.1/16
+
 - name: limit port 22
   ufw: state=enabled rule=limit proto=tcp port=22
 
-- name: put mongodb.conf
-  copy: >
-    src=roles/machine/templates/mongodb.conf
-    dest=/etc/mongodb.conf
-    owner=mongodb group=mongodb
-  notify: restart mongodb
-
-- name: set auto start mongodb
-  service: name=mongodb enabled=yes
-
-- name: start mongodb
-  service: name=mongodb state=started
+- name: enable and start mariadb
+  service: name=mysql enabled=yes state=started
 
 - name: set auto start docker
-  service: name=docker enabled=yes
+  service: name=docker enabled=yes state=started
 
-- name: start docker
-  service: name=docker state=started
+- name: enable and start cron
+  service: name=cron enabled=yes state=started
+
+- name: mkdir /var/certs
+  file: >
+    path=/var/certs state=directory
+    owner=root group=root mode=0755
 
 - name: link ssl cert files
   file: >
-    state=hard
+    state=link
     src=/etc/letsencrypt/live/{{ item }}/fullchain.pem
-    dest=/etc/ssl/private/{{ item }}.crt
+    dest=/var/certs/{{ item }}.crt
   with_items:
     - endaaman.me
     - api.endaaman.me
@@ -45,22 +43,21 @@
 
 - name: link ssl key files
   file: >
-    state=hard
+    state=link
     src=/etc/letsencrypt/live/{{ item }}/privkey.pem
-    dest=/etc/ssl/private/{{ item }}.key
+    dest=/var/certs/{{ item }}.key
   with_items:
     - endaaman.me
     - api.endaaman.me
     - static.endaaman.me
 
-- name: update ssl
-  cron: >
-    name='update ssl'
-    minute='50' hour='2' day='20'
-    job='docker-compose -f /var/apps/docker-compose.yml stop && letsencrypt-auto renew --force-renew && docker-compose -f /var/apps/docker-compose.yml start'
+- name: put update-certs.sh
+  copy: >
+    src=roles/machine/templates/update-certs.sh
+    dest=/root/update-certs.sh
 
-- name: restart apps
+- name: register update certs script to crontab
   cron: >
-    name='restart apps'
-    minute='50' hour='3' weekday='0'
-    job='docker-compose -f /var/apps/docker-compose.yml restart'
+    name='update certs'
+    minute='20' hour='4' day='20'
+    job='bash /root/update-certs.sh'

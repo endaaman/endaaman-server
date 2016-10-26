@@ -1,7 +1,0 @@
----
-- name: restart containers
-  shell: |
-    docker-compose up -d --build
-  args:
-    chdir: /var/apps
-
