@@ -10,12 +10,6 @@
     src=roles/apps/templates/docker-compose.yml
     dest=/var/www/docker-compose.yml
 
-- name: put frate-alpine.club
-  git: >
-    repo=https://github.com/endaaman/frate-alpine.club.git
-    dest=/var/www/frate-alpine.club
-    version=master
-
 - name: restart containers
   shell: |
     docker-compose pull && \

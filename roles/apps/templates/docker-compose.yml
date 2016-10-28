@@ -1,43 +1,53 @@
-enda:
-  image: endaaman/endaaman.me
-  environment:
-    VIRTUAL_HOST: endaaman.me,enda.dev
-  extra_hosts:
-    - 'api.enda.dev:172.17.0.1'
-  restart: always
+version: '2'
+services:
+  enda:
+    image: endaaman/endaaman.me
+    container_name: enda
+    environment:
+      VIRTUAL_HOST: endaaman.me
+    extra_hosts:
+      - 'api.enda.dev:172.17.0.1'
+    restart: always
 
-enda-api:
-  image: endaaman/api.endaaman.me
-  environment:
-    VIRTUAL_HOST: api.endaaman.me,api.enda.dev
-    SECRET_KEY_BASE: "${SECRET_KEY_BASE}"
-    DB_HOST: "172.17.0.1"
-  volumes:
-    - /var/shared/enda:/var/shared/enda
-  restart: always
+  enda-api:
+    image: endaaman/api.endaaman.me
+    container_name: enda-api
+    environment:
+      VIRTUAL_HOST: api.endaaman.me
+      SECRET_KEY_BASE: "${SECRET_KEY_BASE}"
+      DB_HOST: "172.17.0.1"
+    volumes:
+      - /var/shared/enda:/var/shared/enda
+    restart: always
 
-enda-static:
-  image: endaaman/static.endaaman.me
-  environment:
-    VIRTUAL_HOST: static.endaaman.me,static.enda.dev
-  volumes:
-    - /var/shared/enda:/var/shared/enda
-  restart: always
+  enda-static:
+    image: endaaman/static.endaaman.me
+    container_name: enda-static
+    environment:
+      VIRTUAL_HOST: static.endaaman.me
+    volumes:
+      - /var/shared/enda:/var/shared/enda
+    restart: always
 
-frate:
-  extends:
-    file: /var/www/frate-alpine.club/docker-compose.yml
-    service: frate
-  restart: always
+  frate:
+    image: endaaman/frate-alpine.club
+    container_name: frate
+    environment:
+      VIRTUAL_HOST: frate-alpine.club
+    volumes:
+      - /var/www/frate-alpine.club/media:/var/www/frate/media
+      - /var/www/frate-alpine.club/db:/var/www/frate/db
+    restart: always
 
-nginx-proxy:
-  image: endaaman/nginx-proxy
-  volumes:
-    - /var/run/docker.sock:/tmp/docker.sock:ro
-    - /etc/letsencrypt:/etc/letsencrypt:ro
-    - /var/certs:/etc/nginx/certs:ro
-  ports:
-    - 80:80
-    - 443:443
-  restart: always
+  nginx-proxy:
+    image: endaaman/nginx-proxy
+    container_name: nginx-proxy
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/certs:/etc/nginx/certs:ro
+    ports:
+      - 80:80
+      - 443:443
+    restart: always
 
