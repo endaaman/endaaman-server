@@ -2,8 +2,19 @@
 - hosts: sakura
   become: yes
   remote_user: ken
+  vars:
+    setup: false
+    deploy: false
   roles:
-    - packages
-    - machine
-    - user
-    - apps
+    - role: packages
+      when: setup
+
+    - role: machine
+      when: setup
+
+    - role: user
+      when: setup
+
+    - role: apps
+      when: deploy
+
