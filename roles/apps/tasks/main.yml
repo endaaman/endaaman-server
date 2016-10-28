@@ -7,7 +7,7 @@
 
 - name: put /var/www/docker-compose.yml
   copy: >
-    src=roles/apps/templates/docker-compose.yml
+    src=roles/apps/files/docker-compose.yml
     dest=/var/www/docker-compose.yml
 
 - name: restart containers
@@ -16,3 +16,9 @@
     docker-compose up -d --build
   args:
     chdir: /var/www
+
+- name: clean images and containers
+  shell: |
+    docker images -q -f 'dangling=true' | xargs --no-run-if-empty docker rmi && \
+    docker ps -a -q -f 'status=exited' | xargs --no-run-if-empty docker rm -v
+

@@ -8,9 +8,6 @@
     - 80
     - 443
 
-- name: allow connnection from docker to mongodb
-  ufw: state=enabled rule=allow proto=tcp port=27017 src=172.17.42.1/16
-
 - name: allow connnection from docker to mariadb
   ufw: state=enabled rule=allow proto=tcp port=3306 src=172.17.42.1/16
 
@@ -53,7 +50,7 @@
 
 - name: put update-certs.sh
   copy: >
-    src=roles/machine/templates/update-certs.sh
+    src=roles/machine/files/update-certs.sh
     dest=/root/update-certs.sh
 
 - name: register update certs script to crontab
