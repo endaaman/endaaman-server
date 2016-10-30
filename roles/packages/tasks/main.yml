@@ -33,6 +33,7 @@
     - lxd-client
     - bridge-utils
     - mariadb-server
+    - samba
 
 - name: install pip packages
   pip: name=docker-compose

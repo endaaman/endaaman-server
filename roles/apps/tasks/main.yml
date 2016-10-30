@@ -1,10 +1,4 @@
 ---
-# upload dir
-- name: mkdir /var/shared/enda
-  file: >
-    path=/var/shared/enda state=directory
-    owner=root group=root mode=0755
-
 - name: put /var/www/docker-compose.yml
   copy: >
     src=roles/apps/files/docker-compose.yml
