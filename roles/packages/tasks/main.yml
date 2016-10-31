@@ -21,19 +21,29 @@
     - git
     - python
     - python-pip
+
     - zsh
     - curl
     - wget
     - trash-cli
-    - ufw
+
     - nmap
+    - ufw
+    - bridge-utils
+
+    - mariadb-server
+
     - linux-image-extra-{{kernel_name.stdout}}
     - docker-engine
     - lxd
-    - lxd-client
-    - bridge-utils
-    - mariadb-server
+
     - samba
+    - postfix
+    - mailutils
+    - dovecot-core
+    - dovecot-imapd
+    - dovecot-pop3d
+    - sasl2-bin
 
 - name: install pip packages
   pip: name=docker-compose
