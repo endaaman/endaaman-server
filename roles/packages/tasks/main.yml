@@ -1,14 +1,4 @@
 ---
-- name: add apt key for docker-engine
-  apt_key: >
-    keyserver="hkp://p80.pool.sks-keyservers.net:80"
-    id="58118E89F3A912897C070ADBF76221572C52609D"
-
-- name: add apt repo for docker-engine
-  apt_repository: >
-    repo='deb https://apt.dockerproject.org/repo ubuntu-trusty main'
-    state=present
-
 - name: get kernel name
   shell: uname -r
   register: kernel_name
@@ -16,27 +6,25 @@
   always_run: yes
 
 - name: install apt packages
-  apt: pkg={{ item }} force=yes update_cache=yes state=latest
+  apt: pkg={{ item }} update_cache=yes state=latest
   with_items:
     - git
     - python
     - python-pip
-
     - zsh
     - curl
     - wget
     - trash-cli
-
+    - tig
     - nmap
     - ufw
     - bridge-utils
-
-    - mariadb-server
-
+    - apt-transport-https
+    - ca-certificates
+    - linux-image-extra-virtual
     - linux-image-extra-{{kernel_name.stdout}}
     - docker-engine
     - lxd
-
     - samba
     - postfix
     - mailutils
@@ -46,11 +34,16 @@
     - sasl2-bin
 
 - name: install pip packages
-  pip: name=docker-compose
+  pip: name={{ item }}
+  with_items:
+    - docker-compose
 
-- name: get letsencrypt
-  git: >
-    repo=https://github.com/letsencrypt/letsencrypt.git
-    dest=/usr/local/lib/letsencrypt
-    version=master
+# - name: get letsencrypt
+#   git: >
+#     repo=https://github.com/letsencrypt/letsencrypt.git
+#     dest=/usr/local/lib/letsencrypt
+#     version=master
 
+- include: docker.yml
+
+- include: neovim.yml

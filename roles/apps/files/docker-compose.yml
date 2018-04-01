@@ -1,51 +1,52 @@
-enda:
+frontend:
   image: endaaman/endaaman.me
-  container_name: enda
+  container_name: endaaman-frontend
+  restart: always
   environment:
-    VIRTUAL_HOST: endaaman.me,enda.dev
+    - VIRTUAL_HOST=endaaman.me
+    - SITE_HOST=endaaman.me
+    - SSL=1
+    - LETSENCRYPT_HOST=endaaman.me
+    - LETSENCRYPT_EMAIL=buhibuhidog@gmail.com
   extra_hosts:
     - 'api.enda.dev:172.17.0.1'
-  restart: always
 
-enda-api:
+backend:
   image: endaaman/api.endaaman.me
-  container_name: enda-api
-  environment:
-    VIRTUAL_HOST: api.endaaman.me,api.enda.dev
-    SECRET_KEY_BASE: "${SECRET_KEY_BASE}"
-    DB_HOST: '172.17.0.1'
-  volumes:
-    - /var/shared/enda:/var/shared/enda
+  container_name: endaaman-backend
   restart: always
-
-enda-static:
-  image: endaaman/static.endaaman.me
-  container_name: enda-static
   environment:
-    VIRTUAL_HOST: static.endaaman.me,static.enda.dev
+    - VIRTUAL_HOST=api.endaaman.me,static.endaaman.me
+    - LETSENCRYPT_HOST=api.endaaman.me,static.endaaman.me
+    - LETSENCRYPT_EMAIL=buhibuhidog@gmail.com
+    - SHARED_DIR=/var/shared
+    - PASSWORD_HASH
+    - SECRET_KEY_BASE
   volumes:
-    - /var/shared/enda:/var/shared/enda
-  restart: always
-
-frate:
-  image: endaaman/frate-alpine.club
-  container_name: frate
-  environment:
-    VIRTUAL_HOST: frate-alpine.club,frate.endaaman.me,frate.dev
-  volumes:
-    - /var/www/frate-alpine.club/media:/var/www/frate/media
-    - /var/www/frate-alpine.club/db:/var/www/frate/db
-  restart: always
+    - /var/shared:/var/shared
 
 nginx-proxy:
-  image: endaaman/nginx-proxy
+  image: jwilder/nginx-proxy
   container_name: nginx-proxy
+  restart: always
   volumes:
+    - /var/le-certs:/etc/nginx/certs:ro
+    - /etc/nginx/vhost.d
+    - /usr/share/nginx/html
     - /var/run/docker.sock:/tmp/docker.sock:ro
-    - /etc/letsencrypt:/etc/letsencrypt:ro
-    - /var/certs:/etc/nginx/certs:ro
+    - /var/app/client_max_body_size.conf:/etc/nginx/conf.d/client_max_body_size.conf:ro
+  labels:
+    - 'com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy'
   ports:
     - 80:80
     - 443:443
-  restart: always
 
+nginx-proxy-le-companion:
+  image: jrcs/letsencrypt-nginx-proxy-companion
+  container_name: nginx-proxy-le-companion
+  restart: always
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+    - /var/le-certs:/etc/nginx/certs:rw
+  volumes_from:
+    - nginx-proxy

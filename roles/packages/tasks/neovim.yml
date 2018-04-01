@@ -1,0 +1,8 @@
+---
+- name: set up the stable repository
+  apt_repository: >
+    repo=ppa:neovim-ppa/unstable
+    state=present
+
+- name: Install neovim
+  apt: name=neovim state=present update_cache=yes

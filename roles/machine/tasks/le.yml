@@ -1,0 +1,31 @@
+---
+- name: link ssl cert files
+  file: >
+    state=link
+    src=/etc/letsencrypt/live/{{ item }}/fullchain.pem
+    dest=/var/certs/{{ item }}.crt
+  with_items:
+    - endaaman.me
+    - api.endaaman.me
+    - static.endaaman.me
+
+- name: link ssl key files # permit to modify uploaded files
+  file: >
+    state=link
+    src=/etc/letsencrypt/live/{{ item }}/privkey.pem
+    dest=/var/certs/{{ item }}.key
+  with_items:
+    - endaaman.me
+    - api.endaaman.me
+    - static.endaaman.me
+
+- name: put update-certs.sh
+  copy: >
+    src=roles/machine/files/update-certs.sh
+    dest=/root/update-certs.sh
+
+- name: register update certs script to crontab
+  cron: >
+    name='update certs'
+    minute='20' hour='4' day='20'
+    job='bash /root/update-certs.sh'

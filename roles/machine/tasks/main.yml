@@ -1,26 +1,5 @@
 ---
-- name: deny all port defaultly
-  ufw: state=enabled policy=deny
-
-- name: open tcp ports
-  ufw: state=enabled rule=allow proto=tcp port={{ item }}
-  with_items:
-    - 80
-    - 443
-    - 4545
-    - 139
-
-- name: open udp ports
-  ufw: state=enabled rule=allow proto=udp port={{ item }}
-  with_items:
-    - 137
-    - 138
-
-- name: allow connnection from docker to mariadb
-  ufw: state=enabled rule=allow proto=tcp port=3306 src=172.17.42.1/16
-
-- name: limit port 22
-  ufw: state=enabled rule=limit proto=tcp port=22
+- include: firewall.yml
 
 - name: put /etc/samba/smb.conf
   copy: >
@@ -28,60 +7,17 @@
     dest=/etc/samba/smb.conf
   notify: restart samba
 
-- name: enable and start services
-  service: name={{ item }} enabled=yes state=started
-  with_items:
-    - mysql
-    - docker
-    - smbd
-    - nmbd
-    - cron
-
-- name: mkdir /var/certs
+- name: mkdir /var/le-certs
   file: >
-    path=/var/certs state=directory
+    path=/var/le-certs state=directory
     owner=root group=root mode=0755
 
-- name: link ssl cert files
+- name: mkdir /var/app
   file: >
-    state=link
-    src=/etc/letsencrypt/live/{{ item }}/fullchain.pem
-    dest=/var/certs/{{ item }}.crt
-  with_items:
-    - endaaman.me
-    - api.endaaman.me
-    - static.endaaman.me
-
-- name: link ssl key files # permit to modify uploaded files
-  file: >
-    state=link
-    src=/etc/letsencrypt/live/{{ item }}/privkey.pem
-    dest=/var/certs/{{ item }}.key
-  with_items:
-    - endaaman.me
-    - api.endaaman.me
-    - static.endaaman.me
+    path=/var/app state=directory
+    owner=root group=root mode=0755
 
 - name: mkdir /var/shared # refuse to modify shared files
   file: >
     path=/var/shared state=directory
     owner=root group=root mode=1777
-
-# upload dir
-- name: mkdir /var/shared/enda
-  file: >
-    path=/var/shared/enda state=directory
-    owner=root group=root mode=0777
-
-- name: put update-certs.sh
-  copy: >
-    src=roles/machine/files/update-certs.sh
-    dest=/root/update-certs.sh
-
-- name: register update certs script to crontab
-  cron: >
-    name='update certs'
-    minute='20' hour='4' day='20'
-    job='bash /root/update-certs.sh'
-
-
