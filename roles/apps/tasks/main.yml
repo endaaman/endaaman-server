@@ -1,8 +1,8 @@
 ---
-- name: put client_max_body_size.conf
+- name: push app dir
   copy: >
-    src=roles/apps/files/client_max_body_size.conf
-    dest=/var/app/client_max_body_size.conf
+    src=roles/apps/files/app
+    dest=/var/
 
 - name: put docker-compose.yml
   copy: >
@@ -20,4 +20,3 @@
   shell: |
     docker images -q -f 'dangling=true' | xargs --no-run-if-empty docker rmi && \
     docker ps -a -q -f 'status=exited' | xargs --no-run-if-empty docker rm -v
-

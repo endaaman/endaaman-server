@@ -61,6 +61,8 @@ services:
       - nginx-proxy
     networks:
       - proxy-tier
+    depends_on:
+      - nginx-proxy
 
   nextcloud-db:
     image: mariadb:latest
@@ -73,28 +75,37 @@ services:
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
       - MYSQL_PASSWORD=nextcloud
-    networks:
-      - nextcloud-tier
 
   nextcloud-app:
-    image: nextcloud:apache
+    image: nextcloud:fpm
     container_name: nextcloud-app
     restart: always
     volumes:
       - nextcloud-app:/var/www/html
     environment:
-      - VIRTUAL_HOST=nc.endaaman.me
-      - LETSENCRYPT_HOST=nc.endaaman.me
-      - LETSENCRYPT_EMAIL=buhibuhidog@gmail.com
       - MYSQL_HOST=nextcloud-db
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
       - MYSQL_PASSWORD=nextcloud
     depends_on:
       - nextcloud-db
+
+  nextcloud-web:
+    image: nginx
+    container_name: nextcloud-web
+    restart: always
+    volumes:
+      - nextcloud-app:/var/www/html:ro
+      - /var/app/nginx-nextcloud.conf:/etc/nginx/nginx.conf:ro
+    environment:
+      - VIRTUAL_HOST=nc.endaaman.me
+      - LETSENCRYPT_HOST=nc.endaaman.me
+      - LETSENCRYPT_EMAIL=buhibuhidog@gmail.com
+    depends_on:
+      - nextcloud-app
     networks:
+      - default
       - proxy-tier
-      - nextcloud-tier
 
 volumes:
   nextcloud-db:
@@ -102,4 +113,3 @@ volumes:
 
 networks:
   proxy-tier:
-  nextcloud-tier:
