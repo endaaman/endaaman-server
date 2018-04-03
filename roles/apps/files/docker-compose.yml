@@ -1,52 +1,105 @@
-frontend:
-  image: endaaman/endaaman.me
-  container_name: endaaman-frontend
-  restart: always
-  environment:
-    - VIRTUAL_HOST=endaaman.me
-    - SITE_HOST=endaaman.me
-    - SSL=1
-    - LETSENCRYPT_HOST=endaaman.me
-    - LETSENCRYPT_EMAIL=buhibuhidog@gmail.com
-  extra_hosts:
-    - 'api.enda.dev:172.17.0.1'
+version: '2'
 
-backend:
-  image: endaaman/api.endaaman.me
-  container_name: endaaman-backend
-  restart: always
-  environment:
-    - VIRTUAL_HOST=api.endaaman.me,static.endaaman.me
-    - LETSENCRYPT_HOST=api.endaaman.me,static.endaaman.me
-    - LETSENCRYPT_EMAIL=buhibuhidog@gmail.com
-    - SHARED_DIR=/var/shared
-    - PASSWORD_HASH
-    - SECRET_KEY_BASE
-  volumes:
-    - /var/shared:/var/shared
+services:
+  frontend:
+    image: endaaman/endaaman.me
+    container_name: endaaman-frontend
+    restart: always
+    environment:
+      - SITE_HOST=endaaman.me
+      - SSL=1
+      - VIRTUAL_HOST=endaaman.me
+      - LETSENCRYPT_HOST=endaaman.me
+      - LETSENCRYPT_EMAIL=buhibuhidog@gmail.com
+    extra_hosts:
+      - 'api.enda.dev:172.17.0.1'
+    networks:
+      - proxy-tier
 
-nginx-proxy:
-  image: jwilder/nginx-proxy
-  container_name: nginx-proxy
-  restart: always
-  volumes:
-    - /var/le-certs:/etc/nginx/certs:ro
-    - /etc/nginx/vhost.d
-    - /usr/share/nginx/html
-    - /var/run/docker.sock:/tmp/docker.sock:ro
-    - /var/app/client_max_body_size.conf:/etc/nginx/conf.d/client_max_body_size.conf:ro
-  labels:
-    - 'com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy'
-  ports:
-    - 80:80
-    - 443:443
+  backend:
+    image: endaaman/api.endaaman.me
+    container_name: endaaman-backend
+    restart: always
+    environment:
+      - SHARED_DIR=/var/shared
+      - PASSWORD_HASH
+      - SECRET_KEY_BASE
+      - VIRTUAL_HOST=api.endaaman.me,static.endaaman.me
+      - LETSENCRYPT_HOST=api.endaaman.me,static.endaaman.me
+      - LETSENCRYPT_EMAIL=buhibuhidog@gmail.com
+    volumes:
+      - /var/shared:/var/shared
+    networks:
+      - proxy-tier
 
-nginx-proxy-le-companion:
-  image: jrcs/letsencrypt-nginx-proxy-companion
-  container_name: nginx-proxy-le-companion
-  restart: always
-  volumes:
-    - /var/run/docker.sock:/var/run/docker.sock:ro
-    - /var/le-certs:/etc/nginx/certs:rw
-  volumes_from:
-    - nginx-proxy
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    container_name: nginx-proxy
+    restart: always
+    volumes:
+      - /var/le-certs:/etc/nginx/certs:ro
+      - /etc/nginx/vhost.d
+      - /usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - /var/app/client_max_body_size.conf:/etc/nginx/conf.d/client_max_body_size.conf:ro
+    labels:
+      - 'com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy'
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - proxy-tier
+
+  nginx-proxy-le-companion:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    container_name: nginx-proxy-le-companion
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/le-certs:/etc/nginx/certs:rw
+    volumes_from:
+      - nginx-proxy
+    networks:
+      - proxy-tier
+
+  nextcloud-db:
+    image: mariadb:latest
+    container_name: nextcloud-db
+    restart: always
+    volumes:
+      - nextcloud-db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=nextcloud
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=nextcloud
+    networks:
+      - nextcloud-tier
+
+  nextcloud-app:
+    image: nextcloud:apache
+    container_name: nextcloud-app
+    restart: always
+    volumes:
+      - nextcloud-app:/var/www/html
+    environment:
+      - VIRTUAL_HOST=nc.endaaman.me
+      - LETSENCRYPT_HOST=nc.endaaman.me
+      - LETSENCRYPT_EMAIL=buhibuhidog@gmail.com
+      - MYSQL_HOST=nextcloud-db
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=nextcloud
+    depends_on:
+      - nextcloud-db
+    networks:
+      - proxy-tier
+      - nextcloud-tier
+
+volumes:
+  nextcloud-db:
+  nextcloud-app:
+
+networks:
+  proxy-tier:
+  nextcloud-tier:
