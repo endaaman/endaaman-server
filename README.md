@@ -1,3 +1,8 @@
+## ENVs
+- FRONTEND_DIR
+- BACKEND_DIR
+- PASSWORD_HASH
+
 ## MEMO
 - update SSL certs
   ```

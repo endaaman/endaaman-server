@@ -72,6 +72,8 @@ services:
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
       - MYSQL_PASSWORD=nextcloud
+    networks:
+      - nextcloud-tier
 
   nextcloud-app:
     image: nextcloud:fpm
@@ -87,6 +89,8 @@ services:
       - MYSQL_PASSWORD=nextcloud
     depends_on:
       - nextcloud-db
+    networks:
+      - nextcloud-tier
 
   nextcloud-web:
     image: nginx
@@ -103,6 +107,7 @@ services:
       - nextcloud-app
     networks:
       - proxy-tier
+      - nextcloud-tier
 
 volumes:
   nextcloud-db:
@@ -111,3 +116,4 @@ volumes:
 
 networks:
   proxy-tier:
+  nextcloud-tier:

@@ -4,11 +4,6 @@
     src=roles/apps/files/app
     dest=/var/
 
-- name: put docker-compose.yml
-  copy: >
-    src=roles/apps/files/docker-compose.yml
-    dest=/var/app/docker-compose.yml
-
 - name: restart containers
   shell: |
     docker-compose pull && \

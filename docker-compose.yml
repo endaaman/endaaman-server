@@ -2,17 +2,16 @@ version: '2'
 
 services:
   frontend:
-    build: /home/ken/src/github.com/endaaman/frontend
+    build: "${FRONTEND_DIR}"
     container_name: endaaman-frontend
     environment:
       - SITE_HOST=endaaman.test
-      - SSL=1
       - VIRTUAL_HOST=endaaman.test
     networks:
       - proxy-tier
 
   backend:
-    build: /home/ken/src/github.com/endaaman/backend
+    build: "${BACKEND_DIR}"
     container_name: endaaman-backend
     environment:
       - PASSWORD_HASH
@@ -31,7 +30,7 @@ services:
       - /etc/nginx/vhost.d
       - /usr/share/nginx/html
       - /var/run/docker.sock:/tmp/docker.sock:ro
-      - ../roles/apps/files/app/client_max_body_size.conf:/etc/nginx/conf.d/client_max_body_size.conf:ro
+      - ./roles/apps/files/app/client_max_body_size.conf:/etc/nginx/conf.d/client_max_body_size.conf:ro
     ports:
       - 80:80
       - 443:443
@@ -48,6 +47,8 @@ services:
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
       - MYSQL_PASSWORD=nextcloud
+    networks:
+      - nextcloud-tier
 
   nextcloud-app:
     image: nextcloud:fpm
@@ -62,18 +63,21 @@ services:
       - MYSQL_PASSWORD=nextcloud
     depends_on:
       - nextcloud-db
+    networks:
+      - nextcloud-tier
 
   nextcloud-web:
     image: nginx
     container_name: nextcloud-web
     volumes:
       - nextcloud-app:/var/www/html:ro
-      - ../roles/apps/files/app/nginx-nextcloud.conf:/etc/nginx/nginx.conf:ro
+      - ./roles/apps/files/app/nginx-nextcloud.conf:/etc/nginx/nginx.conf:ro
     environment:
       - VIRTUAL_HOST=nc.endaaman.test
     depends_on:
       - nextcloud-app
     networks:
+      - nextcloud-tier
       - proxy-tier
 
 volumes:
@@ -82,4 +86,5 @@ volumes:
   endaaman-data:
 
 networks:
+  nextcloud-tier:
   proxy-tier:
