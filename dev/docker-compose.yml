@@ -2,28 +2,22 @@ version: '2'
 
 services:
   frontend:
-    image: endaaman/endaaman.me
+    build: /home/ken/src/github.com/endaaman/frontend
     container_name: endaaman-frontend
-    restart: always
     environment:
-      - SITE_HOST=endaaman.me
+      - SITE_HOST=endaaman.test
       - SSL=1
-      - VIRTUAL_HOST=endaaman.me
-      - LETSENCRYPT_HOST=endaaman.me
-      - LETSENCRYPT_EMAIL=buhibuhidog@gmail.com
+      - VIRTUAL_HOST=endaaman.test
     networks:
       - proxy-tier
 
   backend:
-    image: endaaman/api.endaaman.me
+    build: /home/ken/src/github.com/endaaman/backend
     container_name: endaaman-backend
-    restart: always
     environment:
       - PASSWORD_HASH
       - SECRET_KEY_BASE
-      - VIRTUAL_HOST=api.endaaman.me,static.endaaman.me
-      - LETSENCRYPT_HOST=api.endaaman.me,static.endaaman.me
-      - LETSENCRYPT_EMAIL=buhibuhidog@gmail.com
+      - VIRTUAL_HOST=api.endaaman.test,static.endaaman.test
     volumes:
       - endaaman-data:/var/www/data
     networks:
@@ -32,39 +26,21 @@ services:
   nginx-proxy:
     image: jwilder/nginx-proxy
     container_name: nginx-proxy
-    restart: always
     volumes:
-      - /var/le-certs:/etc/nginx/certs:ro
+      - /etc/nginx/certs
       - /etc/nginx/vhost.d
       - /usr/share/nginx/html
       - /var/run/docker.sock:/tmp/docker.sock:ro
-      - /var/app/client_max_body_size.conf:/etc/nginx/conf.d/client_max_body_size.conf:ro
-    labels:
-      - 'com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy'
+      - ../roles/apps/files/app/client_max_body_size.conf:/etc/nginx/conf.d/client_max_body_size.conf:ro
     ports:
       - 80:80
       - 443:443
     networks:
       - proxy-tier
 
-  nginx-proxy-le-companion:
-    image: jrcs/letsencrypt-nginx-proxy-companion
-    container_name: nginx-proxy-le-companion
-    restart: always
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /var/le-certs:/etc/nginx/certs:rw
-    volumes_from:
-      - nginx-proxy
-    networks:
-      - proxy-tier
-    depends_on:
-      - nginx-proxy
-
   nextcloud-db:
     image: mariadb:latest
     container_name: nextcloud-db
-    restart: always
     volumes:
       - nextcloud-db:/var/lib/mysql
     environment:
@@ -76,7 +52,6 @@ services:
   nextcloud-app:
     image: nextcloud:fpm
     container_name: nextcloud-app
-    restart: always
     volumes:
       - endaaman-data:/var/www/externals/endaaman
       - nextcloud-app:/var/www/html
@@ -91,14 +66,11 @@ services:
   nextcloud-web:
     image: nginx
     container_name: nextcloud-web
-    restart: always
     volumes:
       - nextcloud-app:/var/www/html:ro
-      - /var/app/nginx-nextcloud.conf:/etc/nginx/nginx.conf:ro
+      - ../roles/apps/files/app/nginx-nextcloud.conf:/etc/nginx/nginx.conf:ro
     environment:
-      - VIRTUAL_HOST=nc.endaaman.me
-      - LETSENCRYPT_HOST=nc.endaaman.me
-      - LETSENCRYPT_EMAIL=buhibuhidog@gmail.com
+      - VIRTUAL_HOST=nc.endaaman.test
     depends_on:
       - nextcloud-app
     networks:
