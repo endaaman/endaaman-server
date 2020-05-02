@@ -7,14 +7,14 @@
     deploy: false
   roles:
     - role: packages
-      when: setup
+      when: setup|bool
 
     - role: machine
-      when: setup
+      when: setup|bool
 
     - role: user
-      when: setup
+      when: setup|bool
 
     - role: apps
-      when: deploy
+      when: deploy|bool
 

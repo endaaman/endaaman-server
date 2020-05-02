@@ -50,7 +50,7 @@ services:
       - nextcloud-tier
 
   nextcloud-app:
-    image: nextcloud:fpm
+    image: nextcloud:stable-fpm
     container_name: nextcloud-app
     volumes:
       - endaaman-data:/var/www/externals/endaaman
@@ -75,7 +75,6 @@ services:
       - VIRTUAL_HOST=nc.endaaman.test
     depends_on:
       - nextcloud-app
-      - nginx-proxy
     networks:
       - nextcloud-tier
       - proxy-tier

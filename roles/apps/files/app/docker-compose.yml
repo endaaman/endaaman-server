@@ -6,6 +6,7 @@ services:
     container_name: endaaman-frontend
     restart: always
     environment:
+      - SSL=1
       - VIRTUAL_HOST=endaaman.me
       - LETSENCRYPT_HOST=endaaman.me
       - LETSENCRYPT_EMAIL=buhibuhidog@gmail.com
@@ -21,7 +22,7 @@ services:
       - LETSENCRYPT_HOST=api.endaaman.me,static.endaaman.me
       - LETSENCRYPT_EMAIL=buhibuhidog@gmail.com
     volumes:
-      - endaaman-data:/var/www/data
+      - endaaman-data:/var/www/shared
     networks:
       - proxy-tier
 
@@ -72,7 +73,7 @@ services:
       - nextcloud-tier
 
   nextcloud-app:
-    image: nextcloud:fpm
+    image: nextcloud:stable-fpm
     container_name: nextcloud-app
     restart: always
     volumes:
