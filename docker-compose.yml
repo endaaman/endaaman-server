@@ -2,7 +2,7 @@ version: '2'
 
 services:
   frontend:
-    build: "${FRONTEND_DIR}"
+    image: endaaman/endaaman.me
     container_name: endaaman-frontend
     environment:
       - SITE_HOST=endaaman.test
@@ -11,14 +11,13 @@ services:
       - proxy-tier
 
   backend:
-    build: "${BACKEND_DIR}"
+    image: endaaman/api.endaaman.me
     container_name: endaaman-backend
     environment:
-      - PASSWORD_HASH
       - SECRET_KEY_BASE
       - VIRTUAL_HOST=api.endaaman.test,static.endaaman.test
     volumes:
-      - endaaman-data:/var/www/data
+      - endaaman-data:/var/www/shared
     networks:
       - proxy-tier
 
@@ -76,6 +75,7 @@ services:
       - VIRTUAL_HOST=nc.endaaman.test
     depends_on:
       - nextcloud-app
+      - nginx-proxy
     networks:
       - nextcloud-tier
       - proxy-tier

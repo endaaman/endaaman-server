@@ -3,7 +3,7 @@
   shell: uname -r
   register: kernel_name
   changed_when: false
-  always_run: yes
+  # always_run: yes
 
 - name: install apt packages
   apt: pkg={{ item }} update_cache=yes state=latest

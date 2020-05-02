@@ -8,4 +8,3 @@ setup:
 
 deploy:
 	ansible-playbook -e 'deploy=false deploy=true' -K playbook.yml
-

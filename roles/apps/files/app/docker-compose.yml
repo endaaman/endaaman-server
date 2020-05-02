@@ -6,8 +6,6 @@ services:
     container_name: endaaman-frontend
     restart: always
     environment:
-      - SITE_HOST=endaaman.me
-      - SSL=1
       - VIRTUAL_HOST=endaaman.me
       - LETSENCRYPT_HOST=endaaman.me
       - LETSENCRYPT_EMAIL=buhibuhidog@gmail.com
@@ -19,8 +17,6 @@ services:
     container_name: endaaman-backend
     restart: always
     environment:
-      - PASSWORD_HASH
-      - SECRET_KEY_BASE
       - VIRTUAL_HOST=api.endaaman.me,static.endaaman.me
       - LETSENCRYPT_HOST=api.endaaman.me,static.endaaman.me
       - LETSENCRYPT_EMAIL=buhibuhidog@gmail.com
