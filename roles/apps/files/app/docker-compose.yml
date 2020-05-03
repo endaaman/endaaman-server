@@ -86,6 +86,7 @@ services:
       - MYSQL_PASSWORD=nextcloud
     # fix for access granting
     # command: sh -c "./occ config:system:set overwriteprotocol -- value='https' && /entrypoint.sh"
+    # $ docker exec nextcloud-app -u www-data bash -c './occ config:system:set overwriteprotocol --value="https"
     depends_on:
       - nextcloud-db
     networks:
