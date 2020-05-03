@@ -1,7 +1,0 @@
-- name: install dotfiles
-  become: no
-  shell: |
-    ./install
-  args:
-    chdir: /home/ken/dotfiles
-
