@@ -1,5 +1,5 @@
 ## captainhook
 
 ```
-$ captainhook -configdir ./ -listen-addr '127.0.0.1:45454'
+$ ~/go/bin/captainhook -configdir . -listen-addr '0.0.0.0:45454'
 ```
