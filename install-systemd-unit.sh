@@ -2,6 +2,6 @@ base=$HOME/.config/systemd/user/
 mkdir -p $base
 
 export DIR=$(realpath $(dirname "$0"))
-cat ./files/captainhook.template.service | envsubst > $base/captainhook.service
+cat ./files/captainhook.template.service | envsubst > ${base}captainhook.service
 
-echo Wrote "$base/captainhook.service"
+echo Wrote "${base}captainhook.service"
