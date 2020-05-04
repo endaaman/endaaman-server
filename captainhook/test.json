@@ -1,9 +1,14 @@
 {
   "scripts": [
     {
+      "command": "sleep",
+      "args": [
+        "10"
+      ]
+    }, {
       "command": "echo",
       "args": [
-        "test"
+        "done"
       ]
     }
   ]
