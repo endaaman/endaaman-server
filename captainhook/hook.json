@@ -3,8 +3,7 @@
     {
       "command": "bash",
       "args": [
-        "restart-docker-compose.sh",
-        "{{POST}}"
+        "restart-docker-compose.sh"
       ]
     }
   ]
