@@ -6,8 +6,8 @@ services:
     container_name: endaaman-frontend
     restart: always
     environment:
-      - SSL=1
-      - VIRTUAL_HOST=endaaman.me
+      - NO_SSL=${NO_SSL}
+      - VIRTUAL_HOST=endaaman.me,endaaman.test
       - LETSENCRYPT_HOST=endaaman.me
       - LETSENCRYPT_EMAIL=buhibuhidog@gmail.com
     networks:
@@ -18,45 +18,13 @@ services:
     container_name: endaaman-backend
     restart: always
     environment:
-      - VIRTUAL_HOST=api.endaaman.me,static.endaaman.me
+      - VIRTUAL_HOST=api.endaaman.me,static.endaaman.me,api.endaaman.test,static.endaaman.test
       - LETSENCRYPT_HOST=api.endaaman.me,static.endaaman.me
       - LETSENCRYPT_EMAIL=buhibuhidog@gmail.com
     volumes:
       - endaaman-data:/var/www/shared
     networks:
       - proxy-tier
-
-  nginx-proxy:
-    image: jwilder/nginx-proxy
-    container_name: nginx-proxy
-    restart: always
-    volumes:
-      - /var/le-certs:/etc/nginx/certs:ro
-      - /etc/nginx/vhost.d
-      - /usr/share/nginx/html
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-      - ./files//client_max_body_size.conf:/etc/nginx/conf.d/client_max_body_size.conf:ro
-    labels:
-      - 'com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy'
-    ports:
-      - 80:80
-      - 443:443
-    networks:
-      - proxy-tier
-
-  nginx-proxy-le-companion:
-    image: jrcs/letsencrypt-nginx-proxy-companion
-    container_name: nginx-proxy-le-companion
-    restart: always
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /var/le-certs:/etc/nginx/certs:rw
-    volumes_from:
-      - nginx-proxy
-    networks:
-      - proxy-tier
-    depends_on:
-      - nginx-proxy
 
   nextcloud-db:
     image: mariadb:latest
@@ -108,6 +76,38 @@ services:
     networks:
       - proxy-tier
       - nextcloud-tier
+
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    container_name: nginx-proxy
+    restart: always
+    volumes:
+      - /var/le-certs:/etc/nginx/certs:ro
+      - /etc/nginx/vhost.d
+      - /usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./files//client_max_body_size.conf:/etc/nginx/conf.d/client_max_body_size.conf:ro
+    labels:
+      - 'com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy'
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - proxy-tier
+
+  nginx-proxy-le-companion:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    container_name: nginx-proxy-le-companion
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/le-certs:/etc/nginx/certs:rw
+    volumes_from:
+      - nginx-proxy
+    networks:
+      - proxy-tier
+    depends_on:
+      - nginx-proxy
 
 volumes:
   nextcloud-db:
