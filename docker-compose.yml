@@ -1,4 +1,4 @@
-version: '2'
+version: '3.1'
 
 services:
   frontend:
@@ -6,7 +6,7 @@ services:
     container_name: endaaman-frontend
     restart: always
     environment:
-      - NO_SSL=${NO_SSL}
+      - SSL="${SSL:-1}"
       - VIRTUAL_HOST=endaaman.me,endaaman.test
       - LETSENCRYPT_HOST=endaaman.me
       - LETSENCRYPT_EMAIL=buhibuhidog@gmail.com
@@ -82,11 +82,11 @@ services:
     container_name: nginx-proxy
     restart: always
     volumes:
+      - nginx-vhost:/etc/nginx/vhost.d
+      - nginx-html:/usr/share/nginx/html
       - /var/le-certs:/etc/nginx/certs:ro
-      - /etc/nginx/vhost.d
-      - /usr/share/nginx/html
       - /var/run/docker.sock:/tmp/docker.sock:ro
-      - ./files//client_max_body_size.conf:/etc/nginx/conf.d/client_max_body_size.conf:ro
+      - ./files/client_max_body_size.conf:/etc/nginx/conf.d/client_max_body_size.conf:ro
     labels:
       - 'com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy'
     ports:
@@ -100,10 +100,12 @@ services:
     container_name: nginx-proxy-le-companion
     restart: always
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - nginx-vhost:/etc/nginx/vhost.d
+      - nginx-html:/usr/share/nginx/html
       - /var/le-certs:/etc/nginx/certs:rw
-    volumes_from:
-      - nginx-proxy
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    # volumes_from:
+    #   - nginx-proxy
     networks:
       - proxy-tier
     depends_on:

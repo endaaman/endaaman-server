@@ -1,7 +1,7 @@
 ## debug in local
 
 ```
-$ NO_SSL=1 docker-compose up --scale nginx-proxy-le-companion=0 -d --build
+$ SSL=0 docker-compose up --scale nginx-proxy-le-companion=0 -d --build
 ```
 
 ## captainhook
