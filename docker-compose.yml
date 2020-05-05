@@ -27,7 +27,7 @@ services:
       - proxy-tier
 
   nextcloud-db:
-    image: mariadb:latest
+    image: mariadb:10
     container_name: nextcloud-db
     restart: always
     volumes:
@@ -61,7 +61,7 @@ services:
       - nextcloud-tier
 
   nextcloud-web:
-    image: nginx
+    image: nginx:1.17
     container_name: nextcloud-web
     restart: always
     volumes:
