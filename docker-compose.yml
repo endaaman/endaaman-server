@@ -6,7 +6,7 @@ services:
     container_name: endaaman-frontend
     restart: always
     environment:
-      - SSL="${SSL:-1}"
+      - SSL="${SSL-1}" # allow empty
       - VIRTUAL_HOST=endaaman.me,endaaman.test
       - LETSENCRYPT_HOST=endaaman.me
       - LETSENCRYPT_EMAIL=buhibuhidog@gmail.com
