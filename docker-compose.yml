@@ -115,6 +115,8 @@ volumes:
   nextcloud-db:
   nextcloud-app:
   endaaman-data:
+  nginx-html:
+  nginx-vhost:
 
 networks:
   proxy-tier:
