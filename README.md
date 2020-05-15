@@ -4,8 +4,15 @@
 $ SSL=0 docker-compose up --scale nginx-proxy-le-companion=0 -d --build
 ```
 
-## captainhook
+## make user service persistent
+```
+$ bash ./install-systemd-unit.sh
+$ systemctl --user enable webhook.service
+$ systemctl --user restart webhook.service
+```
+
+## make user service persistent
 
 ```
-$ ~/go/bin/captainhook -configdir . -listen-addr '0.0.0.0:45454'
+$ sudo loginctl enable-linger <USER NAME>
 ```

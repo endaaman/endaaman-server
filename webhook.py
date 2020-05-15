@@ -1,15 +1,8 @@
-import asyncio
 import argparse
-import json
 import logging
-import logging.handlers
 import os
 import subprocess as sp
-
 import http.server
-from http import HTTPStatus
-from urllib.parse import urlparse
-from urllib.parse import parse_qs
 
 
 fmt = '[%(asctime)s]%(levelname)s: %(message)s'
@@ -25,9 +18,6 @@ args = parser.parse_args()
 HOST = args.host
 PORT = args.port
 SCRIPT = os.path.abspath(args.script)
-
-loop = asyncio.get_event_loop()
-
 
 class Handler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
