@@ -2,6 +2,7 @@ import asyncio
 import argparse
 import json
 import logging
+import logging.handlers
 import os
 import subprocess as sp
 
@@ -10,6 +11,11 @@ from http import HTTPStatus
 from urllib.parse import urlparse
 from urllib.parse import parse_qs
 
+
+fmt = '[%(asctime)s]%(levelname)s: %(message)s'
+logging.basicConfig(level=logging.DEBUG, format=fmt, datefmt='%Y-%m-%d %H:%M:%S',)
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.handlers.SysLogHandler(address='/dev/log'))
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--port', type=int, default=8080)
@@ -57,16 +63,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
         logger.error(fmt % args)
 
 if __name__ == '__main__':
-    logger = logging.getLogger(__name__)
-    fmt = '[%(asctime)s]%(levelname)s: %(message)s'
-    logging.basicConfig(level=logging.DEBUG, format=fmt)
-
     if not os.path.exists(SCRIPT):
-        logging.error(f'Target script ({SCRIPT}) does not exist.')
+        logger.error(f'Target script ({SCRIPT}) does not exist.')
         exit(1)
 
     httpd = http.server.HTTPServer((HOST, PORT), Handler)
-    logging.info(f'Starting server at {HOST}:{PORT}')
-    logging.info(f'Target script: {SCRIPT}')
+    logger.info(f'Starting server at {HOST}:{PORT}')
+    logger.info(f'Target script: {SCRIPT}')
     httpd.serve_forever()
-    logging.info(f'Server closed.')
+    logger.info(f'Server closed.')
