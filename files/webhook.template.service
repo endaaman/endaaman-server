@@ -4,6 +4,8 @@ Description=webhook
 [Service]
 WorkingDirectory=${DIR}
 ExecStart=python webhook.py --host '0.0.0.0' --port '45454' --script ./restart-docker-compose.sh
+StandardOutput=journal
+StandardError=journal
 
 [Install]
 WantedBy=multi-user.target

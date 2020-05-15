@@ -15,7 +15,6 @@ from urllib.parse import parse_qs
 fmt = '[%(asctime)s]%(levelname)s: %(message)s'
 logging.basicConfig(level=logging.INFO, format=fmt, datefmt='%Y-%m-%d %H:%M:%S',)
 logger = logging.getLogger(__name__)
-logger.addHandler(logging.handlers.SysLogHandler(address='/dev/log'))
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--port', type=int, default=8080)
