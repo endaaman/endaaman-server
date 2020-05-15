@@ -1,8 +1,0 @@
-[Unit]
-Description=captainhook
-
-[Service]
-ExecStart=bash ${DIR}/start-captainhook.sh
-
-[Install]
-WantedBy=default.target

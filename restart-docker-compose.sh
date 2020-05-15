@@ -1,5 +1,7 @@
+set -eu
 cd $(realpath $(dirname "$0"))
 
-docker-compose pull > /dev/null && docker-compose up -d --build > /dev/null
+docker-compose pull
+docker-compose up -d --build
 
 echo done
