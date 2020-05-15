@@ -13,7 +13,7 @@ from urllib.parse import parse_qs
 
 
 fmt = '[%(asctime)s]%(levelname)s: %(message)s'
-logging.basicConfig(level=logging.DEBUG, format=fmt, datefmt='%Y-%m-%d %H:%M:%S',)
+logging.basicConfig(level=logging.INFO, format=fmt, datefmt='%Y-%m-%d %H:%M:%S',)
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.handlers.SysLogHandler(address='/dev/log'))
 
@@ -32,29 +32,32 @@ loop = asyncio.get_event_loop()
 
 class Handler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
+        self.log_client()
         self.respond(501)
 
     def do_POST(self):
-        self.log_message(f'Starting {SCRIPT}...')
+        self.log_client()
+        self.log_message(f'Starting {SCRIPT}')
         result = sp.Popen(['bash', SCRIPT]).wait()
         if result == 0:
-            self.log_message(f'Script done.')
+            self.log_message(f'Done script.')
             status = 200
         else:
             self.log_error(f'Script failed.')
             status = 500
         self.respond(status)
 
-    def log_request(self, code='-', size='-'):
-        host, port = self.client_address
-        if isinstance(code, HTTPStatus):
-            code = code.value
-        self.log_message(f'{self.requestline} {str(code)} from {host}:{port}')
-
     def respond(self, status):
         self.send_response(status)
         self.send_header('Content-length', 0)
         self.end_headers()
+
+    def log_client(self):
+        host, port = self.client_address
+        self.log_message(f'{self.requestline} from {host}:{port}')
+
+    def log_request(self, code='-', size='-'):
+        return
 
     def log_message(self, fmt, *args):
         logger.info(fmt % args)
