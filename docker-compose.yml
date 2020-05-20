@@ -66,7 +66,7 @@ services:
     restart: always
     volumes:
       - nextcloud-app:/var/www/html:ro
-      - ./files/nginx-nextcloud.conf:/etc/nginx/nginx.conf:ro
+      - ./nextcloud/nginx.conf:/etc/nginx/nginx.conf:ro
     environment:
       - VIRTUAL_HOST=nc.endaaman.me
       - LETSENCRYPT_HOST=nc.endaaman.me
@@ -77,6 +77,62 @@ services:
       - proxy-tier
       - nextcloud-tier
 
+  misskey-app:
+    image: endaaman/misskey
+    container_name: misskey-app
+    restart: always
+    networks:
+      - misskey-tier
+    # links:
+    #   - misskey-db:mongo
+    #   - misskey-redis:redis
+    volumes:
+      - ./misskey/default.yml:/misskey/.config/default.yml:ro
+    depends_on:
+      - misskey-redis
+      - misskey-db
+
+  misskey-redis:
+    image: redis:4.0-alpine
+    container_name: misskey-redis
+    restart: always
+    networks:
+      - misskey-tier
+    volumes:
+      - misskey-redis:/data
+
+  misskey-db:
+    image: mongo:4.1
+    container_name: misskey-db
+    restart: always
+    networks:
+      - misskey-tier
+    environment:
+      MONGO_INITDB_DATABASE: misskey
+      MONGO_INITDB_ROOT_PASSWORD: misskey
+      MONGO_INITDB_ROOT_USERNAME: misskey
+    volumes:
+      - misskey-db:/data
+      - ./misskey/mongo.js:/docker-entrypoint-initdb.d/mongo_initdb.js:ro
+
+  misskey-web:
+    image: nginx:1.17
+    container_name: misskey-web
+    restart: always
+    volumes:
+      - ./misskey/nginx.conf:/etc/nginx/conf.d/misskey.conf:ro
+    environment:
+      - VIRTUAL_HOST=misskey.endaaman.me,misskey.endaaman.test
+      - LETSENCRYPT_HOST=misskey.endaaman.me
+      - LETSENCRYPT_EMAIL=buhibuhidog@gmail.com
+    # depends_on:
+    #   - misskey-app
+    links:
+      - misskey-app
+    networks:
+      - proxy-tier
+      - misskey-tier
+
   nginx-proxy:
     image: jwilder/nginx-proxy
     container_name: nginx-proxy
@@ -86,7 +142,7 @@ services:
       - nginx-html:/usr/share/nginx/html
       - /var/le-certs:/etc/nginx/certs:ro
       - /var/run/docker.sock:/tmp/docker.sock:ro
-      - ./files/client_max_body_size.conf:/etc/nginx/conf.d/client_max_body_size.conf:ro
+      - ./nginx-proxy/client_max_body_size.conf:/etc/nginx/conf.d/client_max_body_size.conf:ro
     labels:
       - 'com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy'
     ports:
@@ -115,9 +171,12 @@ volumes:
   nextcloud-db:
   nextcloud-app:
   endaaman-data:
+  misskey-db:
+  misskey-redis:
   nginx-html:
   nginx-vhost:
 
 networks:
   proxy-tier:
   nextcloud-tier:
+  misskey-tier:
