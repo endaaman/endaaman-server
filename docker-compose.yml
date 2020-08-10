@@ -91,6 +91,8 @@ services:
     depends_on:
       - misskey-redis
       - misskey-db
+    deploy:
+      replicas: 0
 
   misskey-redis:
     image: redis:4.0-alpine
@@ -100,6 +102,8 @@ services:
       - misskey-tier
     volumes:
       - misskey-redis:/data
+    deploy:
+      replicas: 0
 
   misskey-db:
     image: mongo:4.1
@@ -114,6 +118,8 @@ services:
     volumes:
       - misskey-db:/data
       - ./misskey/mongo.js:/docker-entrypoint-initdb.d/mongo_initdb.js:ro
+    deploy:
+      replicas: 0
 
   misskey-web:
     image: nginx:1.17
@@ -128,6 +134,8 @@ services:
     networks:
       - proxy-tier
       - misskey-tier
+    deploy:
+      replicas: 0
 
   nginx-proxy:
     image: jwilder/nginx-proxy
