@@ -125,10 +125,6 @@ services:
       - VIRTUAL_HOST=misskey.endaaman.me,misskey.endaaman.test
       - LETSENCRYPT_HOST=misskey.endaaman.me
       - LETSENCRYPT_EMAIL=buhibuhidog@gmail.com
-    # depends_on:
-    #   - misskey-app
-    links:
-      - misskey-app
     networks:
       - proxy-tier
       - misskey-tier
