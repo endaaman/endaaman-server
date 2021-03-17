@@ -77,66 +77,6 @@ services:
       - proxy-tier
       - nextcloud-tier
 
-  misskey-app:
-    image: endaaman/misskey
-    container_name: misskey-app
-    restart: always
-    networks:
-      - misskey-tier
-    # links:
-    #   - misskey-db:mongo
-    #   - misskey-redis:redis
-    volumes:
-      - ./misskey/default.yml:/misskey/.config/default.yml:ro
-    depends_on:
-      - misskey-redis
-      - misskey-db
-    deploy:
-      replicas: 0
-
-  misskey-redis:
-    image: redis:4.0-alpine
-    container_name: misskey-redis
-    restart: always
-    networks:
-      - misskey-tier
-    volumes:
-      - misskey-redis:/data
-    deploy:
-      replicas: 0
-
-  misskey-db:
-    image: mongo:4.1
-    container_name: misskey-db
-    restart: always
-    networks:
-      - misskey-tier
-    environment:
-      MONGO_INITDB_DATABASE: misskey
-      MONGO_INITDB_ROOT_PASSWORD: misskey
-      MONGO_INITDB_ROOT_USERNAME: misskey
-    volumes:
-      - misskey-db:/data
-      - ./misskey/mongo.js:/docker-entrypoint-initdb.d/mongo_initdb.js:ro
-    deploy:
-      replicas: 0
-
-  misskey-web:
-    image: nginx:1.17
-    container_name: misskey-web
-    restart: always
-    volumes:
-      - ./misskey/nginx.conf:/etc/nginx/conf.d/misskey.conf:ro
-    environment:
-      - VIRTUAL_HOST=misskey.endaaman.me,misskey.endaaman.test
-      - LETSENCRYPT_HOST=misskey.endaaman.me
-      - LETSENCRYPT_EMAIL=buhibuhidog@gmail.com
-    networks:
-      - proxy-tier
-      - misskey-tier
-    deploy:
-      replicas: 0
-
   nginx-proxy:
     image: jwilder/nginx-proxy
     container_name: nginx-proxy
@@ -175,12 +115,9 @@ volumes:
   nextcloud-db:
   nextcloud-app:
   endaaman-data:
-  misskey-db:
-  misskey-redis:
   nginx-html:
   nginx-vhost:
 
 networks:
   proxy-tier:
   nextcloud-tier:
-  misskey-tier:
