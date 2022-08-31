@@ -41,7 +41,7 @@ services:
       - nextcloud-tier
 
   nextcloud-app:
-    image: nextcloud:21-fpm
+    image: nextcloud:24-fpm
     container_name: nextcloud-app
     restart: always
     volumes:
