@@ -9,7 +9,6 @@ services:
       - SSL=${SSL:-SSL} # default: "SSL"
       - VIRTUAL_HOST=endaaman.me,endaaman.test
       - LETSENCRYPT_HOST=endaaman.me
-      - LETSENCRYPT_EMAIL=buhibuhidog@gmail.com
     networks:
       - proxy-tier
 
@@ -20,7 +19,6 @@ services:
     environment:
       - VIRTUAL_HOST=api.endaaman.me,static.endaaman.me,api.endaaman.test,static.endaaman.test
       - LETSENCRYPT_HOST=api.endaaman.me,static.endaaman.me
-      - LETSENCRYPT_EMAIL=buhibuhidog@gmail.com
     volumes:
       - endaaman-data:/var/www/shared
     networks:
@@ -70,7 +68,6 @@ services:
     environment:
       - VIRTUAL_HOST=nc.endaaman.me
       - LETSENCRYPT_HOST=nc.endaaman.me
-      - LETSENCRYPT_EMAIL=buhibuhidog@gmail.com
     depends_on:
       - nextcloud-app
     networks:
@@ -104,8 +101,11 @@ services:
       - nginx-html:/usr/share/nginx/html
       - /var/le-certs:/etc/nginx/certs:rw
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./docker-data/acme-companion/acme-state/:/etc/acme.sh
     # volumes_from:
     #   - nginx-proxy
+    environment:
+      - DEFAULT_EMAIL=buhibuhidog@gmail.com
     networks:
       - proxy-tier
     depends_on:
@@ -114,7 +114,6 @@ services:
   mailserver:
     image: docker.io/mailserver/docker-mailserver:11.2
     container_name: mailserver
-    hostname: mail
     domainname: endaaman.me
     env_file: mailserver.env
     ports:
@@ -129,6 +128,7 @@ services:
       - ./docker-data/dms/mail-logs/:/var/log/mail/
       - ./docker-data/dms/config/:/tmp/docker-mailserver/
       - /etc/localtime:/etc/localtime:ro
+      - /var/le-certs:/etc/letsencrypt/live/:ro
     cap_add:
       - NET_ADMIN
     restart: always
