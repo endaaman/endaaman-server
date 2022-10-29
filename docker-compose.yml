@@ -78,7 +78,7 @@ services:
       - nextcloud-tier
 
   nginx-proxy:
-    image: jwilder/nginx-proxy
+    image: nginxproxy/nginx-proxy
     container_name: nginx-proxy
     restart: always
     volumes:
@@ -96,7 +96,7 @@ services:
       - proxy-tier
 
   nginx-proxy-le-companion:
-    image: jrcs/letsencrypt-nginx-proxy-companion
+    image: nginxproxy/acme-companion
     container_name: nginx-proxy-le-companion
     restart: always
     volumes:
@@ -114,7 +114,7 @@ services:
   mailserver:
     image: docker.io/mailserver/docker-mailserver:11.2
     container_name: mailserver
-    hostname: endaaman.me
+    hostname: mail
     domainname: endaaman.me
     ports:
       - "25:25"
