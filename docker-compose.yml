@@ -78,7 +78,7 @@ services:
       - nextcloud-tier
 
   nginx-proxy:
-    image: nginxproxy/nginx-proxy
+    image: nginxproxy/nginx-proxy:1.0-alpine
     container_name: nginx-proxy
     restart: always
     volumes:
@@ -96,7 +96,7 @@ services:
       - proxy-tier
 
   nginx-proxy-le-companion:
-    image: nginxproxy/acme-companion
+    image: nginxproxy/acme-companion:2.2
     container_name: nginx-proxy-le-companion
     restart: always
     volumes:
