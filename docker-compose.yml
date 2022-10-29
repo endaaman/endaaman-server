@@ -111,6 +111,27 @@ services:
     depends_on:
       - nginx-proxy
 
+  mailserver:
+    image: docker.io/mailserver/docker-mailserver:11.2
+    container_name: mailserver
+    hostname: endaaman.me
+    domainname: endaaman.me
+    ports:
+      - "25:25"
+      - "143:143"
+      - "587:587"
+      - "993:993"
+    volumes:
+      - ./docker-data/dms/mail-data/:/var/mail/
+      - ./docker-data/dms/mail-state/:/var/mail-state/
+      - ./docker-data/dms/mail-logs/:/var/log/mail/
+      - ./docker-data/dms/config/:/tmp/docker-mailserver/
+      - /etc/localtime:/etc/localtime:ro
+    env_file: mailserver.env
+    cap_add:
+      - NET_ADMIN
+    restart: always
+
 volumes:
   nextcloud-db:
   nextcloud-app:
