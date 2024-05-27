@@ -1,78 +1,62 @@
-version: '3.8'
+version: '3'
+
+networks:
+  proxy-tier:
+
+volumes:
+  nginx-vhost:
+  nginx-html:
+  blog-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./docker-volumes/blog-data
+
+  blog-static:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./docker-volumes/blog-static
+
+  le-certs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./docker-volumes/le-certs
+
+  acme-state:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./docker-volumes/acme-state
 
 services:
-  frontend:
-    image: endaaman/endaaman.me
-    container_name: endaaman-frontend
+  # blog:
+  #   image: endaaman/endaaman.me
+  #   container_name: endaaman-frontend
+  #   restart: always
+  #   environment:
+  #     - VIRTUAL_HOST=endaaman.me,endaaman.test
+  #     - LETSENCRYPT_HOST=endaaman.me
+  #   volumes:
+  #     - blog-data:/data/blog
+  #     - blog-static:/data/static
+  #   networks:
+  #     - proxy-tier
+
+  dummy:
+    image: nginx
+    container_name: nginx-sample
     restart: always
     environment:
-      - SSL=${SSL:-SSL} # default: "SSL"
-      - VIRTUAL_HOST=endaaman.me,endaaman.test
-      - LETSENCRYPT_HOST=endaaman.me
+      - VIRTUAL_HOST=endaaman.com
+      - LETSENCRYPT_HOST=endaaman.com
     networks:
       - proxy-tier
-
-  backend:
-    image: endaaman/api.endaaman.me
-    container_name: endaaman-backend
-    restart: always
-    environment:
-      - VIRTUAL_HOST=api.endaaman.me,static.endaaman.me,api.endaaman.test,static.endaaman.test
-      - LETSENCRYPT_HOST=api.endaaman.me,static.endaaman.me
-    volumes:
-      - endaaman-data:/var/www/shared
-    networks:
-      - proxy-tier
-
-  nextcloud-db:
-    image: mariadb:10
-    container_name: nextcloud-db
-    restart: always
-    volumes:
-      - nextcloud-db:/var/lib/mysql
-    environment:
-      - MYSQL_ROOT_PASSWORD=nextcloud
-      - MYSQL_DATABASE=nextcloud
-      - MYSQL_USER=nextcloud
-      - MYSQL_PASSWORD=nextcloud
-    networks:
-      - nextcloud-tier
-
-  nextcloud-app:
-    image: nextcloud:24-fpm
-    container_name: nextcloud-app
-    restart: always
-    volumes:
-      - endaaman-data:/var/www/externals/endaaman
-      - nextcloud-app:/var/www/html
-    environment:
-      - MYSQL_HOST=nextcloud-db
-      - MYSQL_DATABASE=nextcloud
-      - MYSQL_USER=nextcloud
-      - MYSQL_PASSWORD=nextcloud
-    # fix for access granting
-    # command: sh -c "./occ config:system:set overwriteprotocol -- value='https' && /entrypoint.sh"
-    # $ docker exec -u www-data nextcloud-app bash -c './occ config:system:set overwriteprotocol --value="https"'
-    depends_on:
-      - nextcloud-db
-    networks:
-      - nextcloud-tier
-
-  nextcloud-web:
-    image: nginx:1.17
-    container_name: nextcloud-web
-    restart: always
-    volumes:
-      - nextcloud-app:/var/www/html:ro
-      - ./nextcloud/nginx.conf:/etc/nginx/nginx.conf:ro
-    environment:
-      - VIRTUAL_HOST=nc.endaaman.me
-      - LETSENCRYPT_HOST=nc.endaaman.me
-    depends_on:
-      - nextcloud-app
-    networks:
-      - proxy-tier
-      - nextcloud-tier
 
   nginx-proxy:
     image: nginxproxy/nginx-proxy:1.0-alpine
@@ -81,7 +65,7 @@ services:
     volumes:
       - nginx-vhost:/etc/nginx/vhost.d
       - nginx-html:/usr/share/nginx/html
-      - /var/le-certs:/etc/nginx/certs:ro
+      - le-certs:/etc/nginx/certs:ro
       - /var/run/docker.sock:/tmp/docker.sock:ro
       - ./nginx-proxy/client_max_body_size.conf:/etc/nginx/conf.d/client_max_body_size.conf:ro
     labels:
@@ -99,9 +83,9 @@ services:
     volumes:
       - nginx-vhost:/etc/nginx/vhost.d
       - nginx-html:/usr/share/nginx/html
-      - /var/le-certs:/etc/nginx/certs:rw
+      - le-certs:/etc/nginx/certs:rw
+      - acme-state:/etc/acme.sh
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./docker-data/acme-companion/acme-state/:/etc/acme.sh
     # volumes_from:
     #   - nginx-proxy
     environment:
@@ -111,10 +95,11 @@ services:
     depends_on:
       - nginx-proxy
 
+
   mailserver:
     image: docker.io/mailserver/docker-mailserver:11.2
     container_name: mailserver
-    domainname: endaaman.me
+    domainname: endaaman.com
     env_file: mailserver.env
     ports:
       - "25:25"    # SMTP  (explicit TLS => STARTTLS)
@@ -125,12 +110,12 @@ services:
       - "110:110"  # POP3
       - "995:995"  # POP3 (with TLS)
     volumes:
-      - ./docker-data/dms/mail-data/:/var/mail/
-      - ./docker-data/dms/mail-state/:/var/mail-state/
-      - ./docker-data/dms/mail-logs/:/var/log/mail/
-      - ./docker-data/dms/config/:/tmp/docker-mailserver/
+      - ./docker-volume/dms/mail-data/:/var/mail/
+      - ./docker-volume/dms/mail-state/:/var/mail-state/
+      - ./docker-volume/dms/mail-logs/:/var/log/mail/
+      - ./docker-volume/dms/config/:/tmp/docker-mailserver/
       - /etc/localtime:/etc/localtime:ro
-      - /var/le-certs:/etc/letsencrypt/live/:ro
+      - le-certs:/etc/letsencrypt/live/:ro
     cap_add:
       - NET_ADMIN
     restart: always
@@ -139,14 +124,3 @@ services:
       test: "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1"
       timeout: 3s
       retries: 0
-
-volumes:
-  nextcloud-db:
-  nextcloud-app:
-  endaaman-data:
-  nginx-html:
-  nginx-vhost:
-
-networks:
-  proxy-tier:
-  nextcloud-tier:
