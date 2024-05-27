@@ -48,13 +48,13 @@ services:
   #   networks:
   #     - proxy-tier
 
-  dummy:
+  test:
     image: nginx
     container_name: nginx-sample
     restart: always
     environment:
-      - VIRTUAL_HOST=endaaman.com
-      - LETSENCRYPT_HOST=endaaman.com
+      - VIRTUAL_HOST=test.endaaman.com
+      - LETSENCRYPT_HOST=test.endaaman.com
     networks:
       - proxy-tier
 
