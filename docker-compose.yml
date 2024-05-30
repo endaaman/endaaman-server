@@ -1,5 +1,3 @@
-version: '3'
-
 networks:
   proxy-tier:
 
@@ -35,18 +33,31 @@ volumes:
       device: ./docker-volumes/acme-state
 
 services:
-  # blog:
-  #   image: endaaman/endaaman.me
-  #   container_name: endaaman-frontend
-  #   restart: always
-  #   environment:
-  #     - VIRTUAL_HOST=endaaman.me,endaaman.test
-  #     - LETSENCRYPT_HOST=endaaman.me
-  #   volumes:
-  #     - blog-data:/data/blog
-  #     - blog-static:/data/static
-  #   networks:
-  #     - proxy-tier
+  blog-frontend:
+    image: endaaman/blog-frontend
+    container_name: blog-frontend
+    restart: always
+    environment:
+      - VIRTUAL_HOST=endaaman.com
+      - LETSENCRYPT_HOST=endaaman.com
+      - BACKEND_HOST=blog-backend:3000
+    volumes:
+      - blog-static:/app/static
+    networks:
+      - proxy-tier
+    # command: "node serve.js"
+    # command: "nginx -g 'deamon off;'"
+    depends_on:
+      - blog-backend
+
+  blog-backend:
+    image: endaaman/blog-backend
+    container_name: blog-backend
+    restart: always
+    volumes:
+      - blog-data:/app/data
+    networks:
+      - proxy-tier
 
   test:
     image: nginx
@@ -86,41 +97,9 @@ services:
       - le-certs:/etc/nginx/certs:rw
       - acme-state:/etc/acme.sh
       - /var/run/docker.sock:/var/run/docker.sock:ro
-    # volumes_from:
-    #   - nginx-proxy
     environment:
       - DEFAULT_EMAIL=buhibuhidog@gmail.com
     networks:
       - proxy-tier
     depends_on:
       - nginx-proxy
-
-
-  mailserver:
-    image: ghcr.io/docker-mailserver/docker-mailserver:13.3.1
-    container_name: mailserver
-    domainname: endaaman.com
-    env_file: mailserver.env
-    ports:
-      - "25:25"    # SMTP  (explicit TLS => STARTTLS)
-      - "143:143"  # IMAP4 (explicit TLS => STARTTLS)
-      - "465:465"  # ESMTP (implicit TLS)
-      - "587:587"  # ESMTP (explicit TLS => STARTTLS)
-      - "993:993"  # IMAP4 (implicit TLS)
-      - "110:110"  # POP3
-      - "995:995"  # POP3 (with TLS)
-    volumes:
-      - ./docker-volume/dms/mail-data/:/var/mail/
-      - ./docker-volume/dms/mail-state/:/var/mail-state/
-      - ./docker-volume/dms/mail-logs/:/var/log/mail/
-      - ./docker-volume/dms/config/:/tmp/docker-mailserver/
-      - /etc/localtime:/etc/localtime:ro
-      - le-certs:/etc/letsencrypt/live/:ro
-    cap_add:
-      - NET_ADMIN
-    restart: always
-    stop_grace_period: 1m
-    healthcheck:
-      test: "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1"
-      timeout: 3s
-      retries: 0
