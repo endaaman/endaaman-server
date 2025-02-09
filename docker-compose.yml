@@ -108,8 +108,14 @@ services:
 
   vector:
     image: timberio/vector:0.44.0-debian
+    environment:
+      - VIRTUAL_HOST=vector.endaaman.com
+      - LETSENCRYPT_HOST=vector.endaaman.com
     volumes:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - ./vector.yaml:/etc/vector/vector.yaml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     ports:
-      - "8383:8383"
+      - "8686:8686"
+    networks:
+      - proxy-tier
