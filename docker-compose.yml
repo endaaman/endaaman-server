@@ -105,3 +105,11 @@ services:
       - proxy-tier
     depends_on:
       - nginx-proxy
+
+  vector:
+    image: timberio/vector:0.44.0-debian
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./vector.yaml:/etc/vector/vector.yaml:ro
+    ports:
+      - "8383:8383"

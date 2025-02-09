@@ -1,0 +1,22 @@
+api:
+  enabled: true
+  address: "0.0.0.0:8383"
+
+# データソース設定（例：ファイル監視）
+sources:
+  dummy_logs:
+    type: "demo_logs"
+    format: "syslog"
+    interval: 1
+
+# データ変換設定（オプション）
+transforms:
+  # 必要に応じて追加
+
+# データ出力先設定
+sinks:
+  console:
+    type: "console"
+    inputs: ["dummy_logs"]
+    encoding:
+      codec: "json"
