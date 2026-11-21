@@ -1,3 +1,9 @@
 ansible.log
 docker-volumes/
 .env
+
+# nginx-era config for home.endaaman.com (mentions an internal host; not published). Remove after switching to Caddy
+home.endaaman.com/conf/
+
+# backup written by make caddy-cutover
+docker-compose.before-caddy.yml

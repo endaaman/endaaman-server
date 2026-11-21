@@ -61,13 +61,16 @@ services:
     networks:
       - proxy-tier
 
-  test:
+  home:
     image: nginx
-    container_name: nginx-sample
+    container_name: home-nginx
     restart: always
     environment:
-      - VIRTUAL_HOST=test.endaaman.com
-      - LETSENCRYPT_HOST=test.endaaman.com
+      - VIRTUAL_HOST=home.endaaman.com
+      - LETSENCRYPT_HOST=home.endaaman.com
+    volumes:
+      - ./home.endaaman.com/html:/usr/share/nginx/html
+      - ./home.endaaman.com/conf:/etc/nginx/conf.d
     networks:
       - proxy-tier
 
@@ -105,17 +108,3 @@ services:
       - proxy-tier
     depends_on:
       - nginx-proxy
-
-  vector:
-    image: timberio/vector:0.44.0-debian
-    environment:
-      - VIRTUAL_HOST=vector.endaaman.com
-      - LETSENCRYPT_HOST=vector.endaaman.com
-    volumes:
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - ./vector.yaml:/etc/vector/vector.yaml:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    ports:
-      - "8686:8686"
-    networks:
-      - proxy-tier
