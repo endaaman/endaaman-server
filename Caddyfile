@@ -1,0 +1,20 @@
+# enda-web の入口（80 / 443）。書き換えたら `make caddy-check` → `make caddy-apply`。
+#
+# 名前を足すときは、ここにブロックを 1 つ足す。外から届かせるポートそのものは portmap/ports が決める
+# （80 / 443 は開けてある）。証明書は Caddy が自動で取って更新する。
+
+# ブログ。外からは Cloudflare Tunnel 経由で来る（cloudflared → https://localhost:443、証明書の検証なし）。
+# cloudflared は TLS の名前を localhost、Host を endaaman.com にして繋いでくるので、両方の名前で受ける。
+# Cloudflare の裏にあって公開の証明書は取れないので、Caddy の内部 CA の証明書を使う。
+endaaman.com, localhost {
+	tls internal
+	reverse_proxy 127.0.0.1:8001 {
+		header_up Host endaaman.com
+	}
+}
+
+# 自宅の入口。DNS は Cloudflare を通さず、直接ここ（自宅の出口 IPv4。ddns/ が追従）を指す。
+home.endaaman.com {
+	root * /srv/home.endaaman.com
+	file_server browse
+}

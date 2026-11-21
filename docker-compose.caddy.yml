@@ -1,0 +1,45 @@
+networks:
+  proxy-tier:
+
+volumes:
+  blog-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./docker-volumes/blog-data
+
+  blog-static:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./docker-volumes/blog-static
+
+services:
+  blog-frontend:
+    image: endaaman/blog-frontend
+    container_name: blog-frontend
+    restart: always
+    environment:
+      - BACKEND_HOST=blog-backend:3000
+    volumes:
+      - blog-static:/app/static
+    networks:
+      - proxy-tier
+    ports:
+      # 本体の Caddy（Caddyfile）がここへ流す。127.0.0.1 だけで待ち受け、外には出さない
+      - 127.0.0.1:8001:80
+    depends_on:
+      - blog-backend
+
+  blog-backend:
+    image: endaaman/blog-backend
+    container_name: blog-backend
+    restart: always
+    volumes:
+      - blog-data:/app/data
+    environment:
+      - CF_API_TOKEN=${CF_API_TOKEN}
+    networks:
+      - proxy-tier
