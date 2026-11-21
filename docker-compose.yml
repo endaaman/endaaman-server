@@ -2,8 +2,6 @@ networks:
   proxy-tier:
 
 volumes:
-  nginx-vhost:
-  nginx-html:
   blog-data:
     driver: local
     driver_opts:
@@ -18,35 +16,20 @@ volumes:
       o: bind
       device: ./docker-volumes/blog-static
 
-  le-certs:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./docker-volumes/le-certs
-
-  acme-state:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./docker-volumes/acme-state
-
 services:
   blog-frontend:
     image: endaaman/blog-frontend
     container_name: blog-frontend
     restart: always
     environment:
-      - VIRTUAL_HOST=endaaman.com
-      - LETSENCRYPT_HOST=endaaman.com
       - BACKEND_HOST=blog-backend:3000
     volumes:
       - blog-static:/app/static
     networks:
       - proxy-tier
-    # command: "node serve.js"
-    # command: "nginx -g 'deamon off;'"
+    ports:
+      # 本体の Caddy（Caddyfile）がここへ流す。127.0.0.1 だけで待ち受け、外には出さない
+      - 127.0.0.1:8001:80
     depends_on:
       - blog-backend
 
@@ -60,51 +43,3 @@ services:
       - CF_API_TOKEN=${CF_API_TOKEN}
     networks:
       - proxy-tier
-
-  home:
-    image: nginx
-    container_name: home-nginx
-    restart: always
-    environment:
-      - VIRTUAL_HOST=home.endaaman.com
-      - LETSENCRYPT_HOST=home.endaaman.com
-    volumes:
-      - ./home.endaaman.com/html:/usr/share/nginx/html
-      - ./home.endaaman.com/conf:/etc/nginx/conf.d
-    networks:
-      - proxy-tier
-
-  nginx-proxy:
-    image: nginxproxy/nginx-proxy:1.0-alpine
-    container_name: nginx-proxy
-    restart: always
-    volumes:
-      - nginx-vhost:/etc/nginx/vhost.d
-      - nginx-html:/usr/share/nginx/html
-      - le-certs:/etc/nginx/certs:ro
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-      - ./nginx-proxy/client_max_body_size.conf:/etc/nginx/conf.d/client_max_body_size.conf:ro
-    labels:
-      - 'com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy'
-    ports:
-      - 80:80
-      - 443:443
-    networks:
-      - proxy-tier
-
-  nginx-proxy-le-companion:
-    image: nginxproxy/acme-companion:2.2
-    container_name: nginx-proxy-le-companion
-    restart: always
-    volumes:
-      - nginx-vhost:/etc/nginx/vhost.d
-      - nginx-html:/usr/share/nginx/html
-      - le-certs:/etc/nginx/certs:rw
-      - acme-state:/etc/acme.sh
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    environment:
-      - DEFAULT_EMAIL=buhibuhidog@gmail.com
-    networks:
-      - proxy-tier
-    depends_on:
-      - nginx-proxy
