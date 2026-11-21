@@ -1,0 +1,9 @@
+[Unit]
+Description=DDNS: home.endaaman.com の A レコードを自宅の出口 IPv4 に合わせる (Cloudflare)
+After=network-online.target
+
+[Service]
+Type=oneshot
+# トークンは repo 直下の .env の CF_API_TOKEN（ブログのキャッシュ消去と共用。ゾーン endaaman.com の DNS 編集権限が要る）
+EnvironmentFile=%h/src/github.com/endaaman/endaaman-server/.env
+ExecStart=/usr/bin/python3 %h/src/github.com/endaaman/endaaman-server/ddns/update.py

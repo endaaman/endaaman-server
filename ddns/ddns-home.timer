@@ -1,0 +1,9 @@
+[Unit]
+Description=DDNS: home.endaaman.com を 5 分おきに確かめる
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+
+[Install]
+WantedBy=timers.target

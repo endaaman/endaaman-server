@@ -1,0 +1,15 @@
+[Unit]
+Description=portmap: 別の機械へ流す通信を FORWARD で通す (ufw / Docker の既定 DROP への例外 1 本)
+# ufw と Docker が自分のルールを入れ終わってから、先頭に 1 本だけ足す。Makefile の PERMIT と同じ内容
+After=network-online.target ufw.service docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+Environment="PERMIT=-i ens18 -o ens18 -m conntrack --ctstate DNAT -m comment --comment portmap -j ACCEPT"
+ExecStart=/bin/sh -c 'iptables -C FORWARD $PERMIT 2>/dev/null || iptables -I FORWARD 1 $PERMIT'
+ExecStop=/bin/sh -c 'iptables -D FORWARD $PERMIT 2>/dev/null || true'
+
+[Install]
+WantedBy=multi-user.target
